@@ -3,29 +3,40 @@ import Dans_Diffraction.functions_scattering as fs
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
+from tqdm import tqdm
 
-# Define all constants
-wavelength = 1.5406 # Cu K-alpha
-energy_kev = 8.0478 # Cu K-alpha energy in kEV
-min_twotheta = 0
-max_twotheta = 180
-scattering_type = 'xray'
+class SimulateDiff:
+    def __init__(self, wavelength, energy_kev, min_twotheta, max_twotheta, scattering_type, xtl=None):
+        self.wavelength = wavelength
+        self.energy_kev = energy_kev
+        self.min_twotheta = min_twotheta
+        self.max_twotheta = max_twotheta
+        self.scattering_type = scattering_type
+        self.xtl = xtl
 
-# load in CIF file
-xtl = dif.Crystal(cif_file)
+    def load(self, cif_file):
+        # load in CIF file
+        self.xtl = dif.Crystal(cif_file)
 
-orig_lps = xtl.Cell.lp() # starting lattice parameters
-lp_multiplier = (2,2,2,1,1,1) # separate multiplier for cell prms
-max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
-num_patterns = 3 # number of variations in lattice prms
+        orig_lps = xtl.Cell.lp() # starting lattice parameters
+        lp_multi-plier = (2,2,2,1,1,1) # separate multiplier for cell prms
+        max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
+        num_patterns = 3 # number of variations in lattice prms
 
-all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
+        all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
 
-new_structure_factor = xtl.Scatter.structure_factor
+        return all_lps
+    
+    def _sf(self):
+        if self.xtl is None:
+            raise ValueError("xtl has not been loaded.")
+        return self.xtl.Scatter.structure_factor
 
-def intensity(hkl=None, scattering_type=None, int_hkl=None, **options):
-    return fs.intensity(new_structure_factor(hkl, scattering_type, int_hkl, **options))
-new_intensity = intensity
+    def intensity(self, hkl=None, scattering_type=None, int_hkl=None, **options):
+        new_sf = self._sf()
+        return fs.intensity(new_sf(hkl, scattering_type, int_hkl, **options))
+
+    new_intensity = intensity
 
 def list_all_reflections(energy_kev=None, print_symmetric=False, min_intensity=0.01, max_intensity=None, units=None):
     '''
@@ -74,7 +85,7 @@ def sim_scattering():
         min_twotheta=min_twotheta,
         max_twotheta=max_twotheta,
         output=False,
-        powder_lorentz=1
+        powder_lorentz=1 # lorentz fraction of 1 was arbitrarily chosens
     )
     
     for i in range(num_patterns):
@@ -116,16 +127,16 @@ def find_valid_ref_int():
         ref1_tths_pattern = []
         ref1_intensities_pattern = []
         ref1_hkls_pattern = []
-        for i in range(len(ref1s[j])):
-            ref1_hkls_pattern.append((ref1s[j][i][0], ref1s[j][i][1], ref1s[j][i][2]))
-            ref1_tths_pattern.append(ref1s[j][i][3])
-            ref1_intensities_pattern.append(ref1s[j][i][4])
+        for i in range(len(powder_ref1s[j])):
+            ref1_hkls_pattern.append((powder_ref1s[j][i][0], powder_ref1s[j][i][1], powder_ref1s[j][i][2]))
+            ref1_tths_pattern.append(powder_ref1s[j][i][3])
+            ref1_intensities_pattern.append(powder_ref1s[j][i][4])
         
-        ref1_hkls.append(ref1_hkls_pattern)
-        ref1_tths.append(ref1_tths_pattern)
-        ref1_intensities.append(ref1_intensities_pattern)
+        powder_ref1_hkls.append(ref1_hkls_pattern)
+        powder_ref1_tths.append(ref1_tths_pattern)
+        powder_ref1_intensities.append(ref1_intensities_pattern)
 
-    return refs_arr_tths, refs_arr_ints, ref1_hkls, ref1_tths, ref1_intensities
+    return refs_arr_tths, refs_arr_ints, powder_ref1_hkls, powder_ref1_tths, powder_ref1_intensities
 
 refs_arr_tths, refs_arr_ints, ref1_hkls, ref1_tths, ref1_intensities = find_valid_ref_int()
 
@@ -165,7 +176,11 @@ def create_binary_output():
 if name == "__main__":
     cif_file = 'cif_files/NaCl_cubic.cif'
 
+    mySim = SimulateDiff(wavelength=0.1665, energy_kev=74, min_twotheta=0, max_twotheta=10, scattering_type='xray')
 
+    all_lps = mySim.load(cif_file)
+
+    mySim.sf()
 
 
 
