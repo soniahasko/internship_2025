@@ -156,23 +156,6 @@ for j in range(num_patterns):
     powder_ref1_tths.append(ref1_tths_pattern)
     powder_ref1_intensities.append(ref1_intensities_pattern)
 
-# Store all simulated data (not the peaks) as an xarray dataset
-
-ds = xr.Dataset(
-    {
-        # These are your xr dataarrays - they can be multidimensional and are indexed to coords (which are also xr dataarrays)
-        "Intensities": (["pattern", "tth"], intensities)
-    },
-    coords={ # coordinates for indexing your dataarrays 
-        "pattern": np.arange(num_patterns),
-        "tth": np.linspace(min_twotheta, max_twotheta, tths.shape[1]) # np.linspace(min_tth,max_tth, 11763) or whatever your tth values are
-    },
-    attrs={ # metadata
-        "CIF": cif_file, # you can throw a whole json in here if you like
-        "tth_range": (min_twotheta, max_twotheta)
-    }
-)
-
 binary_peaks = [] # empty list that will contain the np arrays
 
 peak_dtype = np.dtype([
@@ -244,32 +227,33 @@ for i, arr in enumerate(all_variations):
     theta_nearest_arr[i, :num_reflections] = [row[2] for row in arr]
     intensity_arr[i, :num_reflections] = [row[3] for row in arr]
 
-# Create xarray Dataset to hold the reflections
-ds_reflections = xr.Dataset(
-    data_vars={
+# Store all simulated data and reflections in an xarray dataset
+ds_combined = xr.Dataset(
+    {
+        # These are your xr dataarrays - they can be multidimensional and are indexed to coords (which are also xr dataarrays)
+        "Intensities": (["pattern", "tth"], intensities),
         "hkl": (("variation", "peak", "hkl_index"), hkl_arr),
         "2theta_calc": (("variation", "peak"), theta_calc_arr),
         "2theta_nearest": (("variation", "peak"), theta_nearest_arr),
-        "intensity": (("variation", "peak"), intensity_arr),
+        "intensity": (("variation", "peak"), intensity_arr)
     },
-    coords={
+    coords={ # coordinates for indexing your dataarrays 
+        "pattern": np.arange(num_patterns),
+        "tth": np.linspace(min_twotheta, max_twotheta, tths.shape[1]), # np.linspace(min_tth,max_tth, 11763) or whatever your tth values are
         "variation": np.arange(num_patterns),
         "peak": np.arange(max_reflections),
         "hkl_index": ["h", "k", "l"]
+    },
+    attrs={ # metadata
+        "CIF": cif_file, # you can throw a whole json in here if you like
+        "tth_range": (min_twotheta, max_twotheta)
     }
 )
 
-# Save all data and output to path
+# Save file to path
 path = 'saved_data/'
-file = 'ds_1000_patterns_NaCl_1.nc'
+file = 'ds_combined_1000_patterns_NaCl_1.nc'
 
-ds.to_netcdf(os.path.join(path, file))
+ds_combined.to_netcdf(os.path.join(path, file))
 with ZipFile(os.path.join(path,file.replace('.nc','.zip')), 'w', ZIP_DEFLATED) as zObject:
     zObject.write(os.path.join(path,file), arcname=file)
-
-path_ref = 'saved_data/'
-file_ref = 'ds_reflections_1000_patterns_NaCl_1.nc'
-
-ds_reflections.to_netcdf(os.path.join(path_ref, file_ref))
-with ZipFile(os.path.join(path_ref,file_ref.replace('.nc','.zip')), 'w', ZIP_DEFLATED) as zObject:
-    zObject.write(os.path.join(path_ref,file_ref), arcname=file_ref)
