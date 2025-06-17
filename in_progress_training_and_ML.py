@@ -15,7 +15,7 @@ xtl = dif.Crystal(cif_file)
 orig_lps = xtl.Cell.lp() # starting lattice parameters
 lp_multiplier = (2,2,2,1,1,1) # separate multiplier for cell prms
 max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
-num_patterns = 100 # number of variations in lattice prms
+num_patterns = 10 # number of variations in lattice prms
 
 all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
 
