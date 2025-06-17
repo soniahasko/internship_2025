@@ -252,7 +252,7 @@ ds_combined = xr.Dataset(
 
 # Save file to path
 path = 'saved_data/'
-file = 'ds_combined_1000_patterns_NaCl_1.nc'
+file = f'ds_combined_{num_patterns}_patterns_NaCl.nc'
 
 ds_combined.to_netcdf(os.path.join(path, file))
 with ZipFile(os.path.join(path,file.replace('.nc','.zip')), 'w', ZIP_DEFLATED) as zObject:
