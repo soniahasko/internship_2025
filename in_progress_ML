@@ -1,0 +1,43 @@
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+import numpy as np
+import matplotlib.pyplot as plt
+from training_data_simulation import *
+import xarray as xr
+
+random_state = 42
+
+num = 10
+crystal = 'NaCl'
+directory_path = f'saved_data/ds_combined_{num}_patterns_{crystal}.nc'
+
+# Load .nc file
+ds_combined = xr.open_dataset(directory_path)
+
+intensities = ds_combined['Intensities']
+binary_peaks = ds_combined['binary_arr']
+
+# Split data into train and test sets
+intensities_train, intensities_test, binary_peaks_train, binary_peaks_test = train_test_split(intensities, binary_peaks, test_size=0.2, random_state=random_state)
+
+# Scale the features (the intensity values)
+scaler = StandardScaler() # create the scaler object 
+
+intensities_train = scaler.fit_transform(intensities_train)
+intensities_test = scaler.transform(intensities_test)
+
+# Initialize the MLP classifier
+mlp = MLPClassifier(hidden_layer_sizes=(500,100,50), max_iter=2000, random_state=random_state, verbose=True,
+                   learning_rate_init=0.01,  # Default is 0.001; can increase or decrease
+                    tol=1e-5,
+                   early_stopping=False) # initialize MLPClassifier
+
+# Train the MLP classifier
+mlp.fit(intensities_train, binary_peaks_train)
+
+b_peaks_pred = mlp.predict(intensities_test) # make predictions
+accuracy = accuracy_score(binary_peaks_test[0], b_peaks_pred[0])
+print(f'accuracy is {accuracy}')
+
