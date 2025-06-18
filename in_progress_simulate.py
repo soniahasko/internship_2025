@@ -25,7 +25,7 @@ Notes from Adam
 - Same as above for directories, can check if they exist before trying to save files (e.g., os.path.exists(path))
 '''
 
-os.chdir('/nsls2/user/acorrao/GitHub/internship_2025') # Added as a placeholder for full paths
+os.chdir('/nsls2/users/acorrao/GitHub/internship_2025') # Added as a placeholder for full paths
 
 crystal = 'NaCl'
 cif_file = f'cif_files/{crystal}_cubic.cif'
@@ -272,7 +272,7 @@ ds_combined = xr.Dataset(
 
 # Save file to path
 #path = 'saved_data/'
-path = '/nsls2/user/acorrao/Projects/SULI2025/simulated_data' # AAC changed to save to a dir that I have write access to
+path = '/nsls2/users/acorrao/Projects/SULI2025/simulated_data' # AAC changed to save to a dir that I have write access to
 file = f'ds_combined_{num_patterns}_patterns_{crystal}.nc'
 
 ds_combined.to_netcdf(os.path.join(path, file))
