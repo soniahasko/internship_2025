@@ -19,7 +19,13 @@ Notes from Adam
     - 'tth' and 'twotheta' are used
     - 'Pattern' and 'variation' are the same thing, why not use one name for the same coordinate? Perhaps pattern_index is descriptive enough?
 - Move your path definitions to the top of the script, so that they are easy to find and change
+- The code presently makes an assumption that the script is run in the directory where cif_file is located.
+- Same as above for saving the Xarray ds
+- Add try / except blocks to catch errors, such as if the cif file is not found or if the xtl object is not loaded correctly
+- Same as above for directories, can check if they exist before trying to save files (e.g., os.path.exists(path))
 '''
+
+os.chdir('/nsls2/user/acorrao/GitHub/internship_2025') # Added as a placeholder for full paths
 
 crystal = 'NaCl'
 cif_file = f'cif_files/{crystal}_cubic.cif'
@@ -28,7 +34,7 @@ xtl = dif.Crystal(cif_file)
 orig_lps = xtl.Cell.lp() # starting lattice parameters
 lp_multiplier = (2,2,2,1,1,1) # separate multiplier for cell prms
 max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
-num_patterns = 500 # number of variations in lattice prms
+num_patterns = 5000 # number of variations in lattice prms
 
 all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
 
@@ -265,7 +271,8 @@ ds_combined = xr.Dataset(
 )
 
 # Save file to path
-path = 'saved_data/'
+#path = 'saved_data/'
+path = '/nsls2/user/acorrao/Projects/SULI2025/simulated_data' # AAC changed to save to a dir that I have write access to
 file = f'ds_combined_{num_patterns}_patterns_{crystal}.nc'
 
 ds_combined.to_netcdf(os.path.join(path, file))
