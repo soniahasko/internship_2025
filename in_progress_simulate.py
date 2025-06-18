@@ -9,7 +9,8 @@ import xarray as xr
 from zipfile import ZipFile, ZIP_DEFLATED
 import os
 
-cif_file = 'cif_files/NaCl_cubic.cif'
+crystal = 'NaCl'
+cif_file = f'cif_files/{crystal}_cubic.cif'
 xtl = dif.Crystal(cif_file)
 
 orig_lps = xtl.Cell.lp() # starting lattice parameters
@@ -253,7 +254,7 @@ ds_combined = xr.Dataset(
 
 # Save file to path
 path = 'saved_data/'
-file = f'ds_combined_{num_patterns}_patterns_NaCl.nc'
+file = f'ds_combined_{num_patterns}_patterns_{crystal}.nc'
 
 ds_combined.to_netcdf(os.path.join(path, file))
 with ZipFile(os.path.join(path,file.replace('.nc','.zip')), 'w', ZIP_DEFLATED) as zObject:
