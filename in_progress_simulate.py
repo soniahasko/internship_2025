@@ -9,6 +9,18 @@ import xarray as xr
 from zipfile import ZipFile, ZIP_DEFLATED
 import os
 
+'''
+Notes from Adam
+- For readability separate code where the user defines variables from code that generates variables before simulation
+- Your wavelength of 0.1665 corresponds to an energy of 74.46 keV. Rather than defining it twice, pick one and calculate the other to avoid a mismatch
+- In some places you define a function then call it, then define another function - for clarity you can define all your functions first, then call them
+- All package imports should happen together at the top of the script. You can also import packages together (e.g., import sys, os, csv)
+- Variable names should be unambigious - especially in the Xarray dataset. For example:
+    - 'tth' and 'twotheta' are used
+    - 'Pattern' and 'variation' are the same thing, why not use one name for the same coordinate? Perhaps pattern_index is descriptive enough?
+- Move your path definitions to the top of the script, so that they are easy to find and change
+'''
+
 crystal = 'NaCl'
 cif_file = f'cif_files/{crystal}_cubic.cif'
 xtl = dif.Crystal(cif_file)
@@ -65,17 +77,17 @@ def list_all_reflections(energy_kev=None, print_symmetric=False,
     All of these reflections are valid and at the right two theta values; however, the intensity values correspond
     to the integrated areas rather than the peak heights.
     '''
-        
+
     if energy_kev is None:
         energy_kev = ENERGY_KEV
-    
+
     if min_intensity is None: min_intensity = -1
     if max_intensity is None: max_intensity = np.inf
-    
+
     hkl = xtl.Cell.all_hkl(energy_kev, max_twotheta)
     if not print_symmetric:
         hkl = xtl.Symmetry.remove_symmetric_reflections(hkl)
-        
+
     hkl = xtl.Cell.sort_hkl(hkl)
 
     tth = xtl.Cell.tth(hkl, energy_kev)
@@ -93,7 +105,7 @@ def list_all_reflections(energy_kev=None, print_symmetric=False,
         if inten[n] > max_intensity: continue
         count += 1
         all_info.append([hkl[n,0], hkl[n,1], hkl[n,2],tth[n],inten[n]])
-    
+
     return np.array(all_info)
 
 valid_refs = [] # contains valid reflections with integrated areas intensities
@@ -102,8 +114,8 @@ intensities = [] # same as above, but for intensities
 powder_ref1s = [] # contains powder reflections
 
 xtl.Scatter.setup_scatter(
-    scattering_type=scattering_type, 
-    powder_units='twotheta', 
+    scattering_type=scattering_type,
+    powder_units='twotheta',
     energy_kev=energy_kev,
     min_twotheta=min_twotheta,
     max_twotheta=max_twotheta,
@@ -121,7 +133,7 @@ for i in tqdm(range(num_patterns), desc="Setting lattice parameters"):
     tths.append(tth1)
     intensities.append(intensity1)
     powder_ref1s.append(ref1)
-    
+
     real_reflections = list_all_reflections(energy_kev=energy_kev)
     valid_refs.append(real_reflections)
 
@@ -139,7 +151,7 @@ for i in range(num_patterns):
         refs_arr_ints[i][j] = valid_refs[i][j][4]
 
 # Separate ouput of Dans-Diffraction powder method into hkls, tths, intensities, for all variations
-powder_ref1_hkls = [] 
+powder_ref1_hkls = []
 powder_ref1_tths = []
 powder_ref1_intensities = []
 
@@ -147,12 +159,12 @@ for j in range(num_patterns):
     ref1_tths_pattern = []
     ref1_intensities_pattern = []
     ref1_hkls_pattern = []
-    
+
     for i in range(len(powder_ref1s[j])):
         ref1_hkls_pattern.append((powder_ref1s[j][i][0], powder_ref1s[j][i][1], powder_ref1s[j][i][2]))
         ref1_tths_pattern.append(powder_ref1s[j][i][3])
         ref1_intensities_pattern.append(powder_ref1s[j][i][4])
-    
+
     powder_ref1_hkls.append(ref1_hkls_pattern)
     powder_ref1_tths.append(ref1_tths_pattern)
     powder_ref1_intensities.append(ref1_intensities_pattern)
@@ -184,7 +196,7 @@ for j in range(num_patterns):
 
         diffs = np.abs(powder_ref1_tths[j] - refs_arr_tths[j][i])
         min_idx_powder = np.argmin(diffs)
-        
+
         if diffs[min_idx_powder] < tol:
             idx_powder = min_idx_powder
             variation_data[i] = (
@@ -192,8 +204,8 @@ for j in range(num_patterns):
                 refs_arr_tths[j][i],
                 powder_ref1_tths[j][idx_powder],
                 powder_ref1_intensities[j][idx_powder]
-            )    
-        
+            )
+
         # For binary pattern
         diffs_alldata = np.abs(tths[j] - refs_arr_tths[j][i])
         min_idx_alldata = np.argmin(diffs_alldata)
@@ -210,7 +222,7 @@ for j in range(num_patterns):
     # print(f"Pattern {j} - Peaks marked: {np.count_nonzero(binary_peaks_pattern)}")
     all_variations.append(variation_data)
     binary_peaks.append(binary_peaks_pattern)
- 
+
  # Find the maximum number of peaks across all variations
 max_reflections = max(len(arr) for arr in all_variations)
 
@@ -239,7 +251,7 @@ ds_combined = xr.Dataset(
         "intensity": (("variation", "peak"), intensity_arr),
         "binary_arr": (("pattern", "tth"), binary_peaks)
     },
-    coords={ # coordinates for indexing your dataarrays 
+    coords={ # coordinates for indexing your dataarrays
         "pattern": np.arange(num_patterns),
         "tth": np.linspace(min_twotheta, max_twotheta, tths.shape[1]), # np.linspace(min_tth,max_tth, 11763) or whatever your tth values are
         "variation": np.arange(num_patterns),
