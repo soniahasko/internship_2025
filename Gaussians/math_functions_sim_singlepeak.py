@@ -6,7 +6,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 np.random.seed(42) # for reproducibility
 num_repetitions = 20000
-x = np.linspace(-10, 10, 50)
+x = np.linspace(-10, 10, 100)
 all_gauss = np.zeros((num_repetitions, len(x)))
 
 def make_gauss(x, amp, mean, std_dev):

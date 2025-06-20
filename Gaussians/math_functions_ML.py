@@ -5,6 +5,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import numpy as np
 import matplotlib.pyplot as plt
 import xarray as xr
+from scipy.stats import entropy
 
 random_state = 42
 
@@ -39,9 +40,25 @@ mlp.fit(gauss_train, binary_train)
 binary_pred = mlp.predict(gauss_test) # make predictions
 
 probs = mlp.predict_proba(gauss_test)
-print(f'probs.shape is {probs.shape}')
+# print(f'probs.shape is {probs.shape}')
+# print(binary_test.shape)
+two_classprobs = np.array([[i,1-i] for i in probs]) # 1-i will give probability for the 0 class
+two_classprobs = two_classprobs.reshape((probs.shape[0],probs.shape[1],2)) # reshape to (num_samples, num_features, num_classes)
 
-print(binary_test.shape)
+confidences = []
+for i in range(two_classprobs.shape[0]):
+    confidence = np.max(two_classprobs[i], axis=1) # returns max value for each of the features
+    confidences.append(confidence)
+confidences = np.array(confidences)
+
+uncertainties = []
+for i in range(two_classprobs.shape[0]):
+    uncertainties.append(entropy(two_classprobs[i].T))
+uncertainties = np.array(uncertainties)
+
+plt.figure()
+plt.scatter(x, uncertainties)
+plt.scatter(x, confidences)
 
 plt.figure()
 
