@@ -57,7 +57,8 @@ for i in range(two_classprobs.shape[0]):
 uncertainties = np.array(uncertainties)
 
 plt.figure()
-plt.scatter(x, uncertainties)
+test_idx = np.where(g)
+plt.scatter(, uncertainties)
 plt.scatter(x, confidences)
 
 plt.figure()
