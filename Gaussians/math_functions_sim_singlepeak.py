@@ -5,8 +5,8 @@ import os
 from zipfile import ZipFile, ZIP_DEFLATED
 
 np.random.seed(42) # for reproducibility
-num_repetitions = 20000
-x = np.linspace(-10, 10, 100)
+num_repetitions = 10000
+x = np.linspace(-5, 5, 500)
 all_gauss = np.zeros((num_repetitions, len(x)))
 
 def make_gauss(x, amp, mean, std_dev):
@@ -14,8 +14,8 @@ def make_gauss(x, amp, mean, std_dev):
 
 for i in range(num_repetitions):
     amp = np.random.uniform(0.5, 1.5)
-    mean = np.random.uniform(-6, 6)
-    std_dev = np.random.uniform(0.2,2.0)
+    mean = np.random.uniform(-3, 3)
+    std_dev = np.random.uniform(0.05,0.2)
     all_gauss[i] = make_gauss(x, amp, mean, std_dev)
 
 binary_peaks = np.zeros_like(all_gauss, dtype=int)
@@ -38,14 +38,14 @@ ds = xr.Dataset(
 )
 
 path = 'saved_data/'
-file = 'math_functions.nc'
+file = 'math_functions_single.nc'
 
 
 ds.to_netcdf(os.path.join(path, file))
 with ZipFile(os.path.join(path,file.replace('.nc','.zip')), 'w', ZIP_DEFLATED) as zObject:
     zObject.write(os.path.join(path,file), arcname=file)
 
-directory_path = f'saved_data/math_functions.nc'
+# directory_path = f'{path}{file}'
 
 # # Load .nc file
 # ds = xr.open_dataset(directory_path)
