@@ -15,7 +15,7 @@ def make_gauss(x, amp, mean, std_dev):
 for i in range(num_repetitions):
     amp = np.random.uniform(0.5, 1.5)
     mean = np.random.uniform(-3, 3)
-    std_dev = np.random.uniform(0.05,0.2)
+    std_dev = np.random.uniform(0.005,0.01)
     all_gauss[i] = make_gauss(x, amp, mean, std_dev)
 
 binary_peaks = np.zeros_like(all_gauss, dtype=int)
@@ -38,7 +38,7 @@ ds = xr.Dataset(
 )
 
 path = 'saved_data/'
-file = 'math_functions_single.nc'
+file = 'math_functions_single_narrow.nc'
 
 
 ds.to_netcdf(os.path.join(path, file))
