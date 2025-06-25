@@ -23,6 +23,10 @@ Notes from Adam
 - Same as above for saving the Xarray ds
 - Add try / except blocks to catch errors, such as if the cif file is not found or if the xtl object is not loaded correctly
 - Same as above for directories, can check if they exist before trying to save files (e.g., os.path.exists(path))
+
+- We can talk about ways to monitor progress in scripts like this that take a long time to run, such as print statements with flush=True
+- TQDM works, but because this is a "set it and forget it" script, TQDM is not necessary and prints a progress bar to the console every time
+
 '''
 
 os.chdir('/nsls2/users/acorrao/GitHub/internship_2025') # Added as a placeholder for full paths
