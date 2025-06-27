@@ -43,7 +43,7 @@ for i in range(num_repetitions):
     std_dev = np.random.uniform(0.005,0.01)
     signal = make_gauss(x, amp, mean, std_dev)
 
-    all_gauss[i] = add_noise_by_percentage(signal, 0.2)
+    all_gauss[i] = add_noise_by_percentage(signal, 1)
 
 binary_peaks = np.zeros_like(all_gauss, dtype=int)
 
@@ -65,7 +65,7 @@ ds = xr.Dataset(
 )
 
 path = 'saved_data/'
-file = 'math_functions_single_narrow_noisy.nc'
+file = 'math_functions_single_narrow_noisier.nc'
 
 
 ds.to_netcdf(os.path.join(path, file))
