@@ -30,3 +30,7 @@ __pycache__/
 ecgenv/ 
 
 echo -e "ecgenv/\n.venv/\nvenv/\n__pycache__/\n*.pyc\n" >> .gitignore
+
+# pixi environments
+.pixi
+*.egg-info
