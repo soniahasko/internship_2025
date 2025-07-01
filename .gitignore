@@ -27,4 +27,6 @@ env/
 __pycache__/
 *.pyc
 
+/ecgenv 
+
 echo -e "ecgenv/\n.venv/\nvenv/\n__pycache__/\n*.pyc\n" >> .gitignore
