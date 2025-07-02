@@ -6,14 +6,11 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 np.random.seed(42) # for reproducibility
 num_repetitions = 10000
-num_xs = 100
-x = np.linspace(-10, 10, num_xs)
+num_xs = 500
+x = np.linspace(-5, 5, num_xs)
 
-signals = np.zeros((num_repetitions, len(x)))
+signals = np.zeros((num_repetitions, num_xs))
 gauss_parameters = []
-
-
-
 
 
 
