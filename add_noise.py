@@ -1,12 +1,13 @@
 import numpy as np
 import xarray as xr
 import os, sys
+from zipfile import ZipFile, ZIP_DEFLATED
 
-file = '/nsls2/users/shasko/Repos/internship_2025/saved_data/ds_combined_500_patterns_NaCl.nc'
-
+name = 'lorentzian_functions_smalldataset'
+file=f'/nsls2/users/shasko/Repos/internship_2025/saved_data/{name}.nc'
 ds = xr.open_dataset(file)
 
-gaussians = ds["Gaussians"].values
+gaussians = ds["Intensities"].values
 binary = ds["BinaryArr"].values
 x = ds["x"].values
 pattern = ds["pattern"].values
@@ -36,7 +37,7 @@ def add_noise_by_percentage(signal, noise_percentage):
 
         return noisy_signal
 
-noisy_signal = add_noise_by_percentage(gaussians, 3)
+noisy_signal = add_noise_by_percentage(gaussians, 1)
 
 ds_noisy = xr.Dataset(
     {
@@ -49,8 +50,8 @@ ds_noisy = xr.Dataset(
     }
 )
 
-path = 'saved_data/'
-file = 'math_functions_500_patterns_NaCl_noisy.nc'
+path = '/nsls2/users/shasko/Repos/internship_2025/saved_data/'
+file = f'{name}.nc'
 
 
 ds.to_netcdf(os.path.join(path, file))
