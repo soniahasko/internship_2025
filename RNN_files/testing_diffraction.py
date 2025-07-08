@@ -106,7 +106,7 @@ test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.sha
 # Train model
 model.fit(x=train_gaussians_reshaped,
           y=train_binary_reshaped,
-          batch_size=8,
+          batch_size=64,
           epochs=20, 
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
           callbacks=[cp_callback, es_callback])
