@@ -6,9 +6,7 @@ import sys
 import os
 from matplotlib import pyplot as plt
 from RNN_files import Laitala_data_original_file
-import wfdb
-from wfdb.io import get_record_list
-from wfdb import rdsamp
+import xarray as xr
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
@@ -22,45 +20,30 @@ import numpy as np
 import sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
+import csv
 
-diffraction_sim = False
-gauss_sim = True
-visualize_example = False
+path = '/nsls2/users/shasko/Repos/internship_2025/saved_data/'
+filenames = ['lorentzian_functions_smalldataset_noisy_11763',
+             'gaussian_functions_smalldataset_varying_amps_noisy_11763',
+             'psuedovoigt_functions_smalldataset_noisy_11763',
+             'ds_combined_100_patterns_NaCl_cubic_width_peakslabeled_noisy'
+             ]
 
-if diffraction_sim:
-    path = '/nsls2/users/shasko/Repos/internship_2025/datasets/ds_combined_500_patterns_NaCl.nc'
-    ds = xr.open_dataset(path, engine="netcdf4")
-    gaussians = ds["Intensities"].values
-    binary = ds["binary_arr"].values
-    x = ds["tth"].values
+# List comprehension to get all path names
+full_paths = [f'{path}{i}.nc' for i in filenames]
+all_datasets = [xr.open_dataset(p, engine='netcdf4') for p in full_paths] # list of all the Datasets
 
-    window_size = 11763
-
-if gauss_sim:
-    path = '/nsls2/users/shasko/Repos/internship_2025/saved_data/gaussian_functions_smalldataset_varying_amps.nc' 
-    ds = xr.open_dataset(path, engine="netcdf4")
-
-    gaussians = ds["Gaussians"].values
-    binary = ds["BinaryArr"].values
-    print(type(binary))
-
-    x = ds["x"].values
-    window_size = 1000
-
-
-# Pad peaks with two 1s on either side
-for j in range(binary.shape[0]):
-    idx = np.where(binary[j] == 1)[0][0] # because there's only 1 "1" we can use [0][0]
-    binary[j][idx - 2] = 1
-    binary[j][idx - 1] = 1
-    binary[j][idx + 1] = 1
-    binary[j][idx + 2] = 1
+combined = xr.concat(all_datasets, dim="pattern")
+window_size = combined["x"].shape[0]
+gaussians = combined["Intensities"]
+binary = combined["BinaryArr"]
+x = combined["x"].values
 
 # Train-val, test split
-tv_gaussians, test_gaussians, tv_binary, test_binary = train_test_split(gaussians, binary, test_size=0.2, shuffle=False)
 
+tv_gaussians, test_gaussians, tv_binary, test_binary = train_test_split(gaussians, binary, test_size=0.2, shuffle=True, random_state=42)
 # Train, val split
-train_gaussians, val_gaussians, train_binary, val_binary = train_test_split(tv_gaussians, tv_binary, test_size=0.25, shuffle=False)
+train_gaussians, val_gaussians, train_binary, val_binary = train_test_split(tv_gaussians, tv_binary, test_size=0.25, shuffle=True, random_state=42)
 
 # Scale the data
 train_gaussians_sc = np.zeros_like(train_gaussians)
@@ -84,27 +67,26 @@ for j in range(test_gaussians.shape[0]):
 
 n_batch, n_timesteps, n_input_dim = 64, window_size, 1
 
-model = models.Sequential() # initialize model
+model = models.Sequential()
 model.add(Input(shape=(n_timesteps, n_input_dim)))
 model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True)))
 model.add(layers.Bidirectional(layers.LSTM(32, return_sequences=True)))
 model.add(layers.Dense(1, activation='sigmoid'))
 
-# Compile model
-model.compile(loss='binary_crossentropy',
-              optimizer='adam',
-              metrics=['acc'])
+model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 
 # Create callback to save model weights
-checkpoint_path = 'training/cp.ckpt'
+checkpoint_path = 'training_5/cp.ckpt'
 checkpoint_dir = os.path.dirname(checkpoint_path)
+
+# Create callback to save model's weights
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                  save_weights_only=True,
                                                  verbose=2) 
 
-# Create callback to implement earliy stopping
 es_callback = tf.keras.callbacks.EarlyStopping(monitor='loss',
                                               patience=3,
+                                              min_delta=1e-5,
                                               verbose=2)
 
 # Reshape intensity data
@@ -113,6 +95,10 @@ val_gaussians_reshaped = val_gaussians_sc.reshape(val_gaussians_sc.shape[0], val
 test_gaussians_reshaped = test_gaussians_sc.reshape(test_gaussians_sc.shape[0], test_gaussians_sc.shape[1], 1)
 
 # Reshape labels
+train_binary = np.array(train_binary)
+val_binary = np.array(val_binary)
+test_binary = np.array(test_binary)
+
 train_binary_reshaped = train_binary.reshape(train_binary.shape[0], train_binary.shape[1], 1)
 val_binary_reshaped = val_binary.reshape(val_binary.shape[0], val_binary.shape[1], 1)
 test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.shape[1], 1)
@@ -120,88 +106,39 @@ test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.sha
 # Train model
 model.fit(x=train_gaussians_reshaped,
           y=train_binary_reshaped,
-          batch_size=64,
-          epochs=40, 
+          batch_size=8,
+          epochs=20, 
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
           callbacks=[cp_callback, es_callback])
-
 
 # Make predictions on held-out test set
 binary_pred = model.predict(test_gaussians_reshaped,
                             verbose=2)
 
-def f1_w_threshold(threshold, test, pred):
-    pred_adjusted = (pred >= threshold).astype(int)
-    test = test.astype(int)
-    f1 = f1_score(test.squeeze(), pred_adjusted.squeeze(), average='micro')
-    return f1
+# Find f1 score after setting a threshold, using held-out test set
+threshold = 0.5
+binary_pred_adjusted_sklearn = (binary_pred >= threshold).astype(int)
+test_binary_reshaped = test_binary_reshaped.astype(int)
+f1 = f1_score(test_binary_reshaped.squeeze(), binary_pred_adjusted_sklearn.squeeze(), average='micro')
+print(f1)
 
-f1_gauss = f1_w_threshold(threshold=0.3, test=test_binary_reshaped, pred=binary_pred)
-print(f'f1 for gaussian test set is {f1_gauss}')
+# Save data for further analysis
+ds_with_results = xr.Dataset(
+    {
+        "true_y": (("x"), test_binary_reshaped),
+        "predicted_y": (("x"), binary_pred)
+    },
+    coords={
+        "x": x
+    },
+    attrs={
+        "checkpoint_filepath": checkpoint_path, 
+        "filenames_training": filenames,
+        "filenames_testing": filenames,
+        "test_split": 0.20,
+        "params": 'loss=binary_crossentropy, optimizer=adam',
+        "f1 w thresh": f'f1={f1}, threshold={threshold}'
+    }
+)
 
-# Evaulate on non-Gauss data. In this case, Lorentzian signals.
-path = '/nsls2/users/shasko/Repos/internship_2025/saved_data/lorentzian_functions_smalldataset.nc' 
-ds = xr.open_dataset(path, engine="netcdf4")
-
-intensities_lor = ds["Intensities"].values
-binary = ds["BinaryArr"].values
-x = ds["x"].values
-window_size = 1000
-
-# Scale signals
-intensities_lor_sc = np.zeros_like(intensities_lor)
-
-for j in range(intensities_lor.shape[0]):
-    max_inten = np.max(intensities_lor[j])
-    min_inten = np.min(intensities_lor[j])
-    intensities_lor_sc[j] = (intensities_lor[j] - min_inten) / (max_inten - min_inten)
-
-# Reshape intensities
-intensities_lor_sc_reshaped = intensities_lor_sc.reshape(intensities_lor_sc.shape[0],
-                                                         intensities_lor_sc.shape[1],
-                                                         1)
-
-# Reshape labels
-binary_lor_reshaped = binary.reshape(binary.shape[0],
-                                 binary.shape[1],
-                                 1)
-
-# Make prediction
-pred_lor = model.predict(intensities_lor_sc_reshaped,
-                         verbose=2)
-
-f1_lor = f1_w_threshold(threshold=0.3, test=binary_lor_reshaped, pred=pred_lor)
-print(f'f1 for lorentzian test set is {f1_lor}')
-
-
-# Evaulate on non-Gauss data. In this case, cubic NaCl diffraction signals.
-path = '/nsls2/users/shasko/Repos/internship_2025/datasets/ds_combined_500_patterns_NaCl.nc'
-ds = xr.open_dataset(path, engine="netcdf4")
-intensities_diff = ds["Intensities"].values
-binary_diff = ds["binary_arr"].values
-x = ds["tth"].values
-
-window_size = 11763
-
-# Scale signals
-intensities_diff_sc = np.zeros_like(intensities_diff)
-
-for j in range(intensities_diff.shape[0]):
-    max_inten = np.max(intensities_diff[j])
-    min_inten = np.min(intensities_diff[j])
-    intensities_diff_sc[j] = (intensities_diff[j] - min_inten) / (max_inten - min_inten)
-
-# Reshape signals and labels
-intensities_diff_sc_reshaped = intensities_diff_sc.reshape(intensities_diff_sc.shape[0],
-                                                           intensities_diff_sc.shape[1],
-                                                           1)
-binary_diff_reshaped = binary_diff.reshape(binary_diff.shape[0],
-                                           binary_diff.shape[1],
-                                           1)
-
-# Make predictions
-pred_diff = model.predict(intensities_diff_sc_reshaped,
-                         verbose=2)
-
-f1_diff = f1_w_threshold(threshold=0.3, test=binary_diff_reshaped, pred=pred_diff)
-print(f'f1 for lorentzian test set is {f1_diff}')
+ds_with_results.to_netcdf("/nsls2/users/shasko/Repos/internship_2025/saved_data/saved_results.nc")
