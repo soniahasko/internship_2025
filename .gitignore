@@ -39,3 +39,6 @@ echo -e "ecgenv/\n.venv/\nvenv/\n__pycache__/\n*.pyc\n" >> .gitignore
 RNN_files/training/checkpoint
 RNN_files/training/cp.ckpt*
 RNN_files/training*
+
+# slurm
+*.slurm
