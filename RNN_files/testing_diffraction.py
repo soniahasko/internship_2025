@@ -126,7 +126,8 @@ print(f1)
 ds_with_results = xr.Dataset(
     {
         "true_y": (("x"), test_binary_reshaped),
-        "predicted_y": (("x"), binary_pred)
+        "predicted_y": (("x"), binary_pred),
+        "test_intensities": (("x"), test_gaussians_sc)
     },
     coords={
         "x": x

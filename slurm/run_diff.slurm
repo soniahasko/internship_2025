@@ -2,7 +2,7 @@
 #SBATCH --job-name=run_diff_1
 #SBATCH --output=output.txt
 #SBATCH --error=error.txt
-#SBATCH --partition=gpu_long
+#SBATCH --partition=debug               # debug normal long
 #SBATCH --cpus-per-task=10              # Number of CPU cores per task
 #SBATCH --time=0:30:00
 #SBATCH --mail-type=START,END
