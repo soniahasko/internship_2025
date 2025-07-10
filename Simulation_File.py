@@ -1,5 +1,3 @@
-# Import relevant libraries
-
 import Dans_Diffraction as dif
 import Dans_Diffraction.functions_scattering as fs
 import numpy as np
