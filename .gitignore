@@ -42,3 +42,6 @@ RNN_files/training*
 
 # slurm
 *.slurm
+
+# zip
+*.zip
