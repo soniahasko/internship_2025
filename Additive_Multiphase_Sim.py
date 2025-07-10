@@ -123,7 +123,7 @@ for i in range(len(all_crystals)):
     orig_lps = xtl.Cell.lp() # starting lattice parameters
     lp_multiplier = (2,2,2,1,1,1) # separate multiplier for cell prms
     max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
-    num_patterns = 3 # number of variations in lattice prms
+    num_patterns = 20 # number of variations in lattice prms
 
     all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
 
@@ -281,21 +281,19 @@ for i in range(len(all_crystals)):
 
 combined_intens = np.zeros_like(all_intens[0])
 combined_binary = np.zeros_like(all_binary[0])
-print(combined_intens.shape)
-print(combined_binary.shape)
 
 for repetition in range(num_patterns):
     for i in range(len(all_intens[0])):
         combined_intens[repetition] = (all_intens[0][repetition] + all_intens[1][repetition])
 
-    for i in range(len(all_binary[0])):
+    for i in range(len(all_binary[0][0])):
         if all_binary[0][repetition][i] + all_binary[1][repetition][i] == 2:
             combined_binary[repetition][i] = 1
         elif all_binary[0][repetition][i] + all_binary[1][repetition][i] == 1:
             combined_binary[repetition][i] = 1
         else:
             combined_binary[repetition][i] = 0
-            
+
 # View 
 def vis_combined_separate(pattern=0):
     plt.figure()
@@ -306,3 +304,52 @@ def vis_combined_separate(pattern=0):
     plt.plot(tths[pattern], all_intens[0][pattern], color='purple')
     plt.plot(tths[pattern], all_intens[1][pattern], color='green')
     plt.show()
+
+# Save all the data to an xr dataset
+ds_combined = xr.Dataset(
+    {
+        # These are your xr dataarrays - they can be multidimensional and are indexed to coords (which are also xr dataarrays)
+        "AddedIntensities": (["pattern", "x"], combined_intens),
+        "BinaryArr": (("pattern", "x"), combined_binary)
+    },
+    coords={ # coordinates for indexing your dataarrays 
+        "pattern": np.arange(num_patterns),
+        "x": np.linspace(min_twotheta, max_twotheta, tths.shape[1]), # np.linspace(min_tth,max_tth, 11763) or whatever your tth values are
+    },
+    attrs={ # metadata
+        
+    }
+)
+
+# Save the data in saved_data folder
+path = 'saved_data/'
+file = f'ds_combined_{num_patterns}_patterns_multiphase_{all_crystals[0]}_{all_crystals[1]}.nc'
+
+ds_combined.to_netcdf(os.path.join(path, file))
+with ZipFile(os.path.join(path,file.replace('.nc','.zip')), 'w', ZIP_DEFLATED) as zObject:
+    zObject.write(os.path.join(path,file), arcname=file)
+
+
+# Vis the first 3 combined intensities
+def vis_first_3():
+    plt.figure()
+    plt.plot(combined_intens[0], color='purple', label='Pattern 0')
+    plt.plot(combined_intens[1], color='green', label='Pattern 1')
+    plt.plot(combined_intens[2], color='orange', label='Pattern 2')
+    plt.legend()
+    plt.show()
+
+def vis_start_mid_end():
+    plt.figure()
+    plt.plot(combined_intens[0], color='purple', label='Pattern 0')
+    plt.plot(combined_intens[9], color='green', label='Pattern 9')
+    plt.plot(combined_intens[19], color='orange', label='Pattern 19')
+    plt.legend()
+    plt.show()
+
+print(np.max(combined_binary[0]))
+print(np.max(combined_binary[1]))
+print(np.max(combined_binary[2]))
+
+vis_first_3()
+vis_start_mid_end()
