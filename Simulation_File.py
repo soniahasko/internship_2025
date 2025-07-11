@@ -8,15 +8,16 @@ from tqdm import tqdm
 import xarray as xr
 from zipfile import ZipFile, ZIP_DEFLATED
 
-all_crystals = ['BaSO4_orthorhombic', 'NaCl_cubic', 'polypropylene', 'TiO2_tetragonal', 'ZnO_hexagonal']
-crystal = all_crystals[1] # choose a crystal to simulate
+all_crystals = ['S_orthorhombic', 'PbO_tetragonal', 'Ga2O3_monoclinic', 'Al2SiO5_triclinic',
+                'Al2(SO4)3_rhombohedral', 'BaAl2O4_hexagonal']
+crystal = all_crystals[5] # choose a crystal to simulate
 cif_file = f'cif_files/{crystal}.cif' 
 xtl = dif.Crystal(cif_file) # load in the cif file
 
 orig_lps = xtl.Cell.lp() # starting lattice parameters
 lp_multiplier = (2,2,2,1,1,1) # separate multiplier for cell prms
 max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
-num_patterns = 10 # number of variations in lattice prms
+num_patterns = 20 # number of variations in lattice prms
 
 all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
 
@@ -65,7 +66,7 @@ def list_all_reflections(energy_kev=None, print_symmetric=False,
     '''
         
     if energy_kev is None:
-        energy_kev = ENERGY_KEV
+        energy_kev = energy_kev
     
     if min_intensity is None: min_intensity = -1
     if max_intensity is None: max_intensity = np.inf
@@ -302,9 +303,9 @@ ds_combined = xr.Dataset(
     }
 )
 
-# Save the data in saved_data folder
+# Save the data in evaluation_set folder
 
-path = 'saved_data/'
+path = 'evaluation_set/'
 file = f'ds_combined_{num_patterns}_patterns_{crystal}_width_peakslabeled_noisy.nc'
 
 ds_combined.to_netcdf(os.path.join(path, file))

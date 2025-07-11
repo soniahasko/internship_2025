@@ -8,7 +8,7 @@ from tqdm import tqdm
 import xarray as xr
 from zipfile import ZipFile, ZIP_DEFLATED
 
-all_crystals = ['BaSO4_orthorhombic', 'NaCl_cubic']
+all_crystals = ['TiO2_tetragonal', 'BaSO4_orthorhombic']
 all_xtls = []
 
 
