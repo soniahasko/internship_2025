@@ -8,16 +8,16 @@ from tqdm import tqdm
 import xarray as xr
 from zipfile import ZipFile, ZIP_DEFLATED
 
-all_crystals = ['S_orthorhombic', 'PbO_tetragonal', 'Ga2O3_monoclinic', 'Al2SiO5_triclinic',
+all_crystals = ['BaSO4_orthorhombic', 'S_orthorhombic', 'PbO_tetragonal', 'Ga2O3_monoclinic', 'Al2SiO5_triclinic',
                 'Al2(SO4)3_rhombohedral', 'BaAl2O4_hexagonal']
-crystal = all_crystals[5] # choose a crystal to simulate
+crystal = all_crystals[0] # choose a crystal to simulate
 cif_file = f'cif_files/{crystal}.cif' 
 xtl = dif.Crystal(cif_file) # load in the cif file
 
 orig_lps = xtl.Cell.lp() # starting lattice parameters
 lp_multiplier = (2,2,2,1,1,1) # separate multiplier for cell prms
 max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
-num_patterns = 20 # number of variations in lattice prms
+num_patterns = 1 # number of variations in lattice prms
 
 all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
 
@@ -305,8 +305,8 @@ ds_combined = xr.Dataset(
 
 # Save the data in evaluation_set folder
 
-path = 'evaluation_set/'
-file = f'ds_combined_{num_patterns}_patterns_{crystal}_width_peakslabeled_noisy.nc'
+path = 'saved_data/'
+file = f'baso4_data.nc'
 
 ds_combined.to_netcdf(os.path.join(path, file))
 with ZipFile(os.path.join(path,file.replace('.nc','.zip')), 'w', ZIP_DEFLATED) as zObject:

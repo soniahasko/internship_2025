@@ -8,7 +8,7 @@ from tqdm import tqdm
 import xarray as xr
 from zipfile import ZipFile, ZIP_DEFLATED
 
-all_crystals = ['TiO2_tetragonal', 'BaSO4_orthorhombic']
+all_crystals = ['NaCl_cubic', 'BaSO4_orthorhombic']
 all_xtls = []
 
 
@@ -123,7 +123,7 @@ for i in range(len(all_crystals)):
     orig_lps = xtl.Cell.lp() # starting lattice parameters
     lp_multiplier = (2,2,2,1,1,1) # separate multiplier for cell prms
     max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
-    num_patterns = 20 # number of variations in lattice prms
+    num_patterns = 1 # number of variations in lattice prms
 
     all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
 
@@ -348,8 +348,4 @@ def vis_start_mid_end():
     plt.show()
 
 print(np.max(combined_binary[0]))
-print(np.max(combined_binary[1]))
-print(np.max(combined_binary[2]))
 
-vis_first_3()
-vis_start_mid_end()
