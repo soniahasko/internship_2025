@@ -1,11 +1,7 @@
-# Add the parent directory to sys.path
-sys.path.append(os.path.abspath(".."))
-
 # Importing necessary libraries
 import sys
 import os
 from matplotlib import pyplot as plt
-from RNN_files import Laitala_data_original_file
 import xarray as xr
 import numpy as np
 import tensorflow as tf
@@ -13,7 +9,6 @@ from tensorflow.keras import layers
 from scipy.signal import resample_poly
 import xarray as xr
 import matplotlib.pyplot as plt
-from RNN_files import Laitala_data_original_file
 import tensorflow
 from tensorflow.keras import layers, models, Input
 import numpy as np
@@ -22,7 +17,10 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 import csv
 
-path = '/nsls2/users/shasko/Repos/internship_2025/saved_data/'
+# Add the parent directory to sys.path
+sys.path.append(os.path.abspath(".."))
+
+path = '/home/shasko/Desktop/internship_2025/saved_data/'
 filenames = ['lorentzian_functions_smalldataset_noisy_11763',
              'gaussian_functions_smalldataset_varying_amps_noisy_11763',
              'psuedovoigt_functions_smalldataset_noisy_11763',
@@ -76,7 +74,7 @@ model.add(layers.Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 
 # Create callback to save model weights
-checkpoint_path = 'training_5/cp.ckpt'
+checkpoint_path = 'training_6/weights.weights.h5'
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 # Create callback to save model's weights
@@ -107,7 +105,7 @@ test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.sha
 model.fit(x=train_gaussians_reshaped,
           y=train_binary_reshaped,
           batch_size=64,
-          epochs=20, 
+          epochs=1, 
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
           callbacks=[cp_callback, es_callback])
 
@@ -122,15 +120,20 @@ test_binary_reshaped = test_binary_reshaped.astype(int)
 f1 = f1_score(test_binary_reshaped.squeeze(), binary_pred_adjusted_sklearn.squeeze(), average='micro')
 print(f1)
 
+print(f'shape of test_binary_reshaped is {test_binary_reshaped.shape}')
+print(f'shape of binary_pred is {binary_pred.shape}')
+print(f'shape of test_gaussians_sc is {test_gaussians_sc.shape}')
 # Save data for further analysis
 ds_with_results = xr.Dataset(
     {
-        "true_y": (("x"), test_binary_reshaped),
-        "predicted_y": (("x"), binary_pred),
-        "test_intensities": (("x"), test_gaussians_sc)
+        "true_y": (("sample", "x", "channel"), test_binary_reshaped),
+        "predicted_y": (("sample", "x", "channel"), binary_pred),
+        "test_intensities": (("sample", "x"), test_gaussians_sc)
     },
     coords={
-        "x": x
+        "x": x,
+        "sample": np.arange(test_binary_reshaped.shape[0]),
+        "channel": np.arange(1)
     },
     attrs={
         "checkpoint_filepath": checkpoint_path, 
@@ -142,4 +145,4 @@ ds_with_results = xr.Dataset(
     }
 )
 
-ds_with_results.to_netcdf("/nsls2/users/shasko/Repos/internship_2025/saved_data/saved_results.nc")
+ds_with_results.to_netcdf("/home/shasko/Desktop/internship_2025/saved_data/saved_results_2.nc")
