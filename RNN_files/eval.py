@@ -4,8 +4,9 @@ from tensorflow.keras import layers
 from tensorflow.keras import layers, models, Input
 import xarray as xr
 from sklearn.metrics import f1_score
+import matplotlib.pyplot as plt
 
-file = '/home/shasko/Desktop/internship_2025/evaluation_set/ds_combined_20_patterns_CsCl_cubic_width_peakslabeled_noisy.nc'
+file = '/home/shasko/Desktop/internship_2025/evaluation_set/Ga2O3_monoclinic_data.nc'
 
 # List comprehension to get all path names
 ds = xr.open_dataset(file, engine='netcdf4')
@@ -47,11 +48,6 @@ model = build_model()
 # Load saved weights
 model.load_weights('training_5/weights.weights.h5')
 
-
-
-
-
-
 # Predict
 predictions_new = model.predict(gaussians_new_reshaped)
 print(f'predictions_new are {predictions_new}')
@@ -63,3 +59,17 @@ binary_pred_adjusted_sklearn = (predictions_new >= threshold).astype(int)
 test_binary_reshaped = binary_new_reshaped.astype(int)
 f1 = f1_score(test_binary_reshaped.squeeze(), binary_pred_adjusted_sklearn.squeeze(), average='micro')
 print(f1)
+
+def vis(idx_lst):
+    for idx in idx_lst:
+        plt.figure(figsize=(10,8))
+        plt.plot(predictions_new[idx], color='purple', label='Prediction Probabilities')
+        plt.plot(test_binary_reshaped[idx] + 1, color='green', label='True Peaks')
+        plt.plot(gaussians_new_reshaped[idx] + 2, color='orange', label='Signal')
+        plt.legend(bbox_to_anchor=(1.01, 1.02), loc='upper left', fontsize=15)
+        plt.tight_layout()
+        plt.title(f'Pattern {idx+1}/2 for Ga2O3_monoclinic')
+        # plt.savefig('/nsls2/users/shasko/Repos/internship_2025/saved_figures/gaussian_jul2_idx12')
+        plt.show()
+
+vis([0,1])

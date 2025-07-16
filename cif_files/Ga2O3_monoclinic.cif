@@ -1,43 +1,83 @@
-# generated using pymatgen
-data_Ga2O3
-_symmetry_space_group_name_H-M   C2/m
-_cell_length_a   12.28047342
-_cell_length_b   3.04756735
-_cell_length_c   5.81741012
-_cell_angle_alpha   90.00000000
-_cell_angle_beta   103.76434361
-_cell_angle_gamma   90.00000000
-_symmetry_Int_Tables_number   12
-_chemical_formula_structural   Ga2O3
-_chemical_formula_sum   'Ga8 O12'
-_cell_volume   211.46752587
-_cell_formula_units_Z   4
+
+#(C) 2025 by FIZ Karlsruhe - Leibniz Institute for Information Infrastructure.  All rights reserved.
+data_63907-ICSD
+_database_code_ICSD 63907
+_audit_creation_date 2023-08-01
+_chemical_name_common 'Gallium trioxide, chromium(III)-doped (2%)'
+_chemical_formula_structural 'Ga1.98 O3'
+_chemical_formula_sum 'Ga1.98 O3'
+_chemical_name_structure_type Ga2O3
+_exptl_crystal_density_diffrn 5.88
+_citation_title
+
+;
+Broadening phosphor-converted light-emitting diode emission. Controlling
+disorder
+;
 loop_
- _symmetry_equiv_pos_site_id
- _symmetry_equiv_pos_as_xyz
-  1  'x, y, z'
-  2  '-x, -y, -z'
-  3  '-x, y, -z'
-  4  'x, -y, z'
-  5  'x+1/2, y+1/2, z'
-  6  '-x+1/2, -y+1/2, -z'
-  7  '-x+1/2, y+1/2, -z'
-  8  'x+1/2, -y+1/2, z'
+_citation_id
+_citation_journal_full
+_citation_year
+_citation_journal_volume
+_citation_page_first
+_citation_page_last
+_citation_journal_id_ASTM
+primary 'Chemistry of Materials' 2022 34 10190 10199 CMATEX
 loop_
- _atom_type_symbol
- _atom_type_oxidation_number
-  Ga3+  3.0
-  O2-  -2.0
+_citation_author_citation_id
+_citation_author_name
+primary 'Chang, Chih-Yu'
+primary 'Majewska, Natalia'
+primary 'Chen, Kuan-Chun'
+primary 'Huang, Wen-Tse'
+primary 'Leśniewski, Tadeusz'
+primary 'Leniec, Grzegorz'
+primary 'Kaczmarek, Sławomir M.'
+primary 'Pang, Wei Kong'
+primary 'Peterson, Vanessa K.'
+primary 'Cherng, Ding-Hua'
+primary 'Lu, Kuang-Mao'
+primary 'Mahlik, Sebastian'
+primary 'Liu, Ru-Shi'
+_cell_length_a 12.2395(2)
+_cell_length_b 3.04280(4)
+_cell_length_c 5.81229(8)
+_cell_angle_alpha 90.
+_cell_angle_beta 103.83456(12)
+_cell_angle_gamma 90.
+_cell_volume 210.18
+_cell_formula_units_Z 4
+_space_group_name_H-M_alt 'C 1 2/m 1'
+_space_group_IT_number 12
 loop_
- _atom_site_type_symbol
- _atom_site_label
- _atom_site_symmetry_multiplicity
- _atom_site_fract_x
- _atom_site_fract_y
- _atom_site_fract_z
- _atom_site_occupancy
-  Ga3+  Ga0  4  0.09047440  0.00000000  0.79478600  1
-  Ga3+  Ga1  4  0.15883830  0.50000000  0.31473034  1
-  O2-  O2  4  0.00353087  0.50000000  0.74333591  1
-  O2-  O3  4  0.16450498  0.00000000  0.10915408  1
-  O2-  O4  4  0.17337106  0.00000000  0.56323016  1
+_space_group_symop_id
+_space_group_symop_operation_xyz
+1 '-x, y, -z'
+2 '-x, -y, -z'
+3 'x, -y, z'
+4 'x, y, z'
+5 '-x+1/2, y+1/2, -z'
+6 '-x+1/2, -y+1/2, -z'
+7 'x+1/2, -y+1/2, z'
+8 'x+1/2, y+1/2, z'
+loop_
+_atom_type_symbol
+_atom_type_oxidation_number
+Ga3+ 3
+O2- -2
+loop_
+_atom_site_label
+_atom_site_type_symbol
+_atom_site_symmetry_multiplicity
+_atom_site_Wyckoff_symbol
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_B_iso_or_equiv
+_atom_site_occupancy
+Ga1 Ga3+ 4 i 0.0915(5) 0 0.7951(12) 3.5(2) 0.99
+Ga2 Ga3+ 4 i 0.3424(3) 0 0.6823(9) 4.6(2) 0.99
+O1 O2- 4 i 0.1600(20) 0 0.075(5) 6.4(7) 1.
+O2 O2- 4 i 0.4913(12) 0 0.259(3) 2.3(5) 1.
+O3 O2- 4 i 0.8235(11) 0 0.471(4) 0.9(5) 1.
+#End of TTdata_63907-ICSD

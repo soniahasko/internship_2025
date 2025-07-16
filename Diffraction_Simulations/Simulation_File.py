@@ -3,21 +3,19 @@ import Dans_Diffraction.functions_scattering as fs
 import numpy as np
 import matplotlib.pyplot as plt
 import os, sys
-import csv
 from tqdm import tqdm
 import xarray as xr
 from zipfile import ZipFile, ZIP_DEFLATED
 
-all_crystals = ['BaSO4_orthorhombic', 'S_orthorhombic', 'PbO_tetragonal', 'Ga2O3_monoclinic', 'Al2SiO5_triclinic',
-                'Al2(SO4)3_rhombohedral', 'BaAl2O4_hexagonal']
-crystal = all_crystals[0] # choose a crystal to simulate
+all_crystals = ['Ga2O3_monoclinic', 'TiO2_tetragonal', 'BaAl2O4_hexagonal', 'Al2SO43_trigonal']
+crystal = all_crystals[3] #choose a crystal to simulate
 cif_file = f'cif_files/{crystal}.cif' 
 xtl = dif.Crystal(cif_file) # load in the cif file
 
 orig_lps = xtl.Cell.lp() # starting lattice parameters
 lp_multiplier = (2,2,2,1,1,1) # separate multiplier for cell prms
 max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
-num_patterns = 1 # number of variations in lattice prms
+num_patterns = 100 # number of variations in lattice prms
 
 all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
 
@@ -277,7 +275,7 @@ ds_NOTSAVED = xr.Dataset(
     attrs={ # metadata
         "CIF": cif_file, # you can throw a whole json in here if you like
         "tth_range": (min_twotheta, max_twotheta),
-        "description": "Simulated diffraction peaks for TiO2 tetragonal, padded with 1s along width",
+        "description": f"Simulated diffraction peaks for {crystal}, padded with 1s along width",
         "width": "based on dans-diffraction code, width here = 0.01 degrees, and doing the math: 13 labeled peaks per peak",
         "noise": f"True, {noise_percent}%"
     }
@@ -296,7 +294,7 @@ ds_combined = xr.Dataset(
     attrs={ # metadata
         "CIF": cif_file, # you can throw a whole json in here if you like
         "tth_range": (min_twotheta, max_twotheta),
-        "description": "Simulated diffraction peaks for TiO2 tetragonal, padded with 1s along width",
+        "description": f"Simulated diffraction peaks for {crystal}, padded with 1s along width",
         "width": "based on dans-diffraction code, width here = 0.01 degrees, and doing the math: 13 labeled peaks per peak",
         "noise": f"True, {noise_percent}%",
         "extra": "N/A"
@@ -305,8 +303,8 @@ ds_combined = xr.Dataset(
 
 # Save the data in evaluation_set folder
 
-path = 'saved_data/'
-file = f'baso4_data.nc'
+path = 'evaluation_set/'
+file = f'{crystal}_data_{num_patterns}.nc'
 
 ds_combined.to_netcdf(os.path.join(path, file))
 with ZipFile(os.path.join(path,file.replace('.nc','.zip')), 'w', ZIP_DEFLATED) as zObject:
