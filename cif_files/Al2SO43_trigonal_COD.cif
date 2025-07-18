@@ -1,0 +1,80 @@
+#------------------------------------------------------------------------------
+#$Date: 2017-01-23 08:44:26 +0200 (Mon, 23 Jan 2017) $
+#$Revision: 190831 $
+#$URL: file:///home/coder/svn-repositories/cod/cif/1/54/51/1545122.cif $
+#------------------------------------------------------------------------------
+#
+# This file is available in the Crystallography Open Database (COD),
+# http://www.crystallography.net/
+#
+# All data on this site have been placed in the public domain by the
+# contributors.
+#
+data_1545122
+loop_
+_publ_author_name
+'Kato, E.'
+'Daimon, K.'
+_publ_section_title
+;
+ Crystal structure of anhydrous aluminum sulfate
+;
+_journal_name_full               Yogyo-Kyokai-Shi
+_journal_page_first              590
+_journal_page_last               595
+_journal_volume                  87
+_journal_year                    1979
+_chemical_formula_sum            'Al2 O12 S3'
+_chemical_name_common            Al2(SO4)3
+_space_group_IT_number           148
+_space_group_name_H-M_alt        'R -3'
+_symmetry_space_group_name_Hall  '-R 3'
+_symmetry_space_group_name_H-M   'R -3 :H'
+_cell_angle_alpha                90
+_cell_angle_beta                 90
+_cell_angle_gamma                120
+_cell_formula_units_Z            6
+_cell_length_a                   8.03200
+_cell_length_b                   8.03200
+_cell_length_c                   21.36000
+_cell_volume                     1193.381
+_cod_data_source_file            Al2S3O12.cif
+_cod_data_source_block           Al2S3O12
+_cod_original_formula_sum        'Al2 S3 O12'
+_cod_database_code               1545122
+loop_
+_space_group_symop_operation_xyz
+'x, y, z'
+'-x, -y, -z'
+'-y, x-y, z'
+'y, -x+y, -z'
+'-x+y, -x, z'
+'x-y, x, -z'
+'x+2/3, y+1/3, z+1/3'
+'-x+2/3, -y+1/3, -z+1/3'
+'-y+2/3, x-y+1/3, z+1/3'
+'y+2/3, -x+y+1/3, -z+1/3'
+'-x+y+2/3, -x+1/3, z+1/3'
+'x-y+2/3, x+1/3, -z+1/3'
+'x+1/3, y+2/3, z+2/3'
+'-x+1/3, -y+2/3, -z+2/3'
+'-y+1/3, x-y+2/3, z+2/3'
+'y+1/3, -x+y+2/3, -z+2/3'
+'-x+y+1/3, -x+2/3, z+2/3'
+'x-y+1/3, x+2/3, -z+2/3'
+loop_
+_atom_site_label
+_atom_site_occupancy
+_atom_site_fract_x
+_atom_site_fract_y
+_atom_site_fract_z
+_atom_site_adp_type
+_atom_site_B_iso_or_equiv
+_atom_site_type_symbol
+Al1 1.0 0.000000 0.000000 0.144000 Biso 1.000000 Al
+Al2 1.0 0.000000 0.000000 0.356000 Biso 1.000000 Al
+S 1.0 0.295000 0.279000 0.256000 Biso 1.000000 S
+O1 1.0 0.192000 0.171000 0.202000 Biso 1.000000 O
+O2 1.0 0.496000 0.354000 0.247000 Biso 1.000000 O
+O3 1.0 0.258000 0.434000 0.265000 Biso 1.000000 O
+O4 1.0 0.233000 0.158000 0.310000 Biso 1.000000 O

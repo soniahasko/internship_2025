@@ -7,15 +7,15 @@ from tqdm import tqdm
 import xarray as xr
 from zipfile import ZipFile, ZIP_DEFLATED
 
-all_crystals = ['Ga2O3_monoclinic', 'TiO2_tetragonal', 'BaAl2O4_hexagonal', 'Al2SO43_trigonal']
-crystal = all_crystals[3] #choose a crystal to simulate
+all_crystals = ['Ga2O3_monoclinic', 'TiO2_tetragonal', 'BaAl2O4_hexagonal', 'Al2SO43_trigonal', 'ZnO_hexagonal']
+crystal = all_crystals[4]#choose a crystal to simulate
 cif_file = f'cif_files/{crystal}.cif' 
 xtl = dif.Crystal(cif_file) # load in the cif file
 
 orig_lps = xtl.Cell.lp() # starting lattice parameters
 lp_multiplier = (2,2,2,1,1,1) # separate multiplier for cell prms
 max_lps = np.array(orig_lps) * np.array(lp_multiplier) # max lp_a, lp_b, lp_c, alpha, beta, gamma
-num_patterns = 100 # number of variations in lattice prms
+num_patterns = 2# number of variations in lattice prms
 
 all_lps = np.linspace(orig_lps, max_lps, num_patterns) # all variations, including original
 

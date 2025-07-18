@@ -45,3 +45,9 @@ RNN_files/training*
 
 # zip
 *.zip
+
+# test folder
+test/*
+
+# pixi
+pixi.*

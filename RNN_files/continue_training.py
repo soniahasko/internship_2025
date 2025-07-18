@@ -11,11 +11,11 @@ from sklearn.model_selection import train_test_split
 # Add the parent directory to sys.path
 sys.path.append(os.path.abspath(".."))
 
-path = '/home/shasko/Desktop/internship_2025/saved_data/'
+path = '/home/shasko/Desktop/internship_2025/'
 filenames = ['evaluation_set/Ga2O3_monoclinic_data_100',
              'evaluation_set/TiO2_tetragonal_data_100',
              'evaluation_set/BaAl2O4_hexagonal_data_100',
-             'evaluation_set/Al2SO43_trigonal'
+             'evaluation_set/Al2SO43_trigonal_data_100'
              ]
 
 # List comprehension to get all path names
@@ -68,7 +68,7 @@ def build_model():
 model = build_model()
 
 # Load saved weights
-model.load_weights('training_5/weights.weights.h5')
+model.load_weights('/home/shasko/Desktop/internship_2025/training_5/weights.weights.h5')
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 
@@ -102,7 +102,7 @@ test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.sha
 model.fit(x=train_gaussians_reshaped,
           y=train_binary_reshaped,
           batch_size=64,
-          epochs=1, 
+          epochs=160,
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
           callbacks=[cp_callback, es_callback])
 

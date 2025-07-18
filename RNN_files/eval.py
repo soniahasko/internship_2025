@@ -6,7 +6,7 @@ import xarray as xr
 from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
 
-file = '/home/shasko/Desktop/internship_2025/evaluation_set/Ga2O3_monoclinic_data.nc'
+file = '/home/shasko/Desktop/internship_2025/evaluation_set/test_1_patterns_Cu_cubic_COD_peakslabeled_noisy.nc'
 
 # List comprehension to get all path names
 ds = xr.open_dataset(file, engine='netcdf4')
@@ -46,7 +46,7 @@ def build_model():
 model = build_model()
 
 # Load saved weights
-model.load_weights('training_5/weights.weights.h5')
+model.load_weights('/home/shasko/Desktop/internship_2025/training_only_analytical_4/weights.weights.h5')
 
 # Predict
 predictions_new = model.predict(gaussians_new_reshaped)
@@ -61,6 +61,7 @@ f1 = f1_score(test_binary_reshaped.squeeze(), binary_pred_adjusted_sklearn.squee
 print(f1)
 
 def vis(idx_lst):
+
     for idx in idx_lst:
         plt.figure(figsize=(10,8))
         plt.plot(predictions_new[idx], color='purple', label='Prediction Probabilities')
@@ -68,8 +69,8 @@ def vis(idx_lst):
         plt.plot(gaussians_new_reshaped[idx] + 2, color='orange', label='Signal')
         plt.legend(bbox_to_anchor=(1.01, 1.02), loc='upper left', fontsize=15)
         plt.tight_layout()
-        plt.title(f'Pattern {idx+1}/2 for Ga2O3_monoclinic')
+        plt.title(f'Pattern {idx+1}/2 for ZnO hexagonal')
         # plt.savefig('/nsls2/users/shasko/Repos/internship_2025/saved_figures/gaussian_jul2_idx12')
         plt.show()
 
-vis([0,1])
+vis([0])

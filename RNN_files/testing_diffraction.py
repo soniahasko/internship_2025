@@ -20,15 +20,27 @@ import csv
 # Add the parent directory to sys.path
 sys.path.append(os.path.abspath(".."))
 
-path = '/home/shasko/Desktop/internship_2025/saved_data/'
-filenames = ['lorentzian_functions_smalldataset_noisy_11763',
-             'gaussian_functions_smalldataset_varying_amps_noisy_11763',
-             'psuedovoigt_functions_smalldataset_noisy_11763',
-             'ds_combined_100_patterns_NaCl_cubic_width_peakslabeled_noisy'
+path = '/home/shasko/Desktop/internship_2025/'
+filenames = ['saved_data/gaussian_functions_small_var_amp_noisy_11763.nc',
+             'saved_data/gaussian_functions_medium_var_amp_noisy_11763.nc',
+             'saved_data/gaussian_functions_large_var_amp_noisy_11763.nc',
+             'saved_data/gaussian_functions_very_large_var_amp_noisy_11763.nc',
+             'saved_data/lorentzian_functions_small_var_amps_noisy_11763.nc',
+             'saved_data/lorentzian_functions_medium_var_amps_noisy_11763.nc',
+             'saved_data/lorentzian_functions_large_var_amps_noisy_11763.nc',
+             'saved_data/lorentzian_functions_very_large_var_amps_noisy_11763.nc',
+             'saved_data/asymmetric_functions_small_noisy.nc',
+             'saved_data/asymmetric_functions_medium_noisy.nc',
+             'saved_data/asymmetric_functions_large_noisy.nc',
+             'saved_data/asymmetric_functions_very_large_noisy.nc',
+             'saved_data/psuedovoigt_functions_small_var_amps_noisy_11763.nc',
+             'saved_data/psuedovoigt_functions_medium_var_amps_noisy_11763.nc',
+             'saved_data/psuedovoigt_functions_large_var_amps_noisy_11763.nc',
+             'saved_data/psuedovoigt_functions_very_large_var_amps_noisy_11763.nc'
              ]
-
+             
 # List comprehension to get all path names
-full_paths = [f'{path}{i}.nc' for i in filenames]
+full_paths = [f'{path}{i}' for i in filenames]
 all_datasets = [xr.open_dataset(p, engine='netcdf4') for p in full_paths] # list of all the Datasets
 
 combined = xr.concat(all_datasets, dim="pattern")
@@ -74,7 +86,7 @@ model.add(layers.Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 
 # Create callback to save model weights
-checkpoint_path = 'training_6/weights.weights.h5'
+checkpoint_path = '../training_only_analytical_4/weights.weights.h5'
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 # Create callback to save model's weights
@@ -82,10 +94,12 @@ cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                  save_weights_only=True,
                                                  verbose=2) 
 
-es_callback = tf.keras.callbacks.EarlyStopping(monitor='loss',
-                                              patience=3,
-                                              min_delta=1e-5,
-                                              verbose=2)
+es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
+                                               patience=5,
+                                               min_delta=1e-4,
+                                               verbose=2,
+                                               restore_best_weights=True)
+
 
 # Reshape intensity data
 train_gaussians_reshaped = train_gaussians_sc.reshape(train_gaussians_sc.shape[0], train_gaussians_sc.shape[1], 1)
@@ -105,7 +119,7 @@ test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.sha
 model.fit(x=train_gaussians_reshaped,
           y=train_binary_reshaped,
           batch_size=64,
-          epochs=1, 
+          epochs=100, 
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
           callbacks=[cp_callback, es_callback])
 
@@ -145,4 +159,4 @@ ds_with_results = xr.Dataset(
     }
 )
 
-ds_with_results.to_netcdf("/home/shasko/Desktop/internship_2025/saved_data/saved_results_2.nc")
+ds_with_results.to_netcdf("/home/shasko/Desktop/internship_2025/saved_results_only_analytical_4.nc")
