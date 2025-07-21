@@ -17,27 +17,31 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 import csv
 
+n_batch = int(sys.argv[1])
+
 # Add the parent directory to sys.path
 sys.path.append(os.path.abspath(".."))
 
 path = '/home/shasko/Desktop/internship_2025/'
-filenames = ['saved_data/gaussian_functions_small_var_amp_noisy_11763.nc',
-             'saved_data/gaussian_functions_medium_var_amp_noisy_11763.nc',
-             'saved_data/gaussian_functions_large_var_amp_noisy_11763.nc',
-             'saved_data/gaussian_functions_very_large_var_amp_noisy_11763.nc',
-             'saved_data/lorentzian_functions_small_var_amps_noisy_11763.nc',
-             'saved_data/lorentzian_functions_medium_var_amps_noisy_11763.nc',
-             'saved_data/lorentzian_functions_large_var_amps_noisy_11763.nc',
-             'saved_data/lorentzian_functions_very_large_var_amps_noisy_11763.nc',
+filenames = [
+             'saved_data/gaussian_functions_small_var_amp_noisy_11837_stddevamp.nc',
+             'saved_data/gaussian_functions_medium_var_amp_noisy_11837_stddevamp.nc',
+             'saved_data/gaussian_functions_large_var_amp_noisy_11837_stddevamp.nc',
+             'saved_data/gaussian_functions_very_large_var_amp_noisy_11837_stddevamp.nc',
+             'saved_data/lorentzian_functions_small_var_amps_noisy_11837_3000.nc',
+             'saved_data/lorentzian_functions_medium_var_amps_noisy_11837_3000.nc',
+             'saved_data/lorentzian_functions_large_var_amps_noisy_11837_3000.nc',
+             'saved_data/lorentzian_functions_very_large_var_amps_noisy_11837_3000.nc',
+             'saved_data/psuedovoigt_functions_small_var_amps_noisy_11837_3000.nc',
+             'saved_data/psuedovoigt_functions_medium_var_amps_noisy_11837_3000.nc',
+             'saved_data/psuedovoigt_functions_large_var_amps_noisy_11837_3000.nc',
+             'saved_data/psuedovoigt_functions_very_large_var_amps_noisy_11837_3000.nc',
              'saved_data/asymmetric_functions_small_noisy.nc',
              'saved_data/asymmetric_functions_medium_noisy.nc',
              'saved_data/asymmetric_functions_large_noisy.nc',
-             'saved_data/asymmetric_functions_very_large_noisy.nc',
-             'saved_data/psuedovoigt_functions_small_var_amps_noisy_11763.nc',
-             'saved_data/psuedovoigt_functions_medium_var_amps_noisy_11763.nc',
-             'saved_data/psuedovoigt_functions_large_var_amps_noisy_11763.nc',
-             'saved_data/psuedovoigt_functions_very_large_var_amps_noisy_11763.nc'
+             'saved_data/asymmetric_functions_very_large_noisy.nc'
              ]
+trial = f'8_n_batch_{n_batch}'
              
 # List comprehension to get all path names
 full_paths = [f'{path}{i}' for i in filenames]
@@ -75,7 +79,7 @@ for j in range(test_gaussians.shape[0]):
     min_inten = np.min(test_gaussians[j])
     test_gaussians_sc[j] = (test_gaussians[j] - min_inten) / (max_inten - min_inten)
 
-n_batch, n_timesteps, n_input_dim = 64, window_size, 1
+n_timesteps, n_input_dim = window_size, 1
 
 model = models.Sequential()
 model.add(Input(shape=(n_timesteps, n_input_dim)))
@@ -86,7 +90,7 @@ model.add(layers.Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 
 # Create callback to save model weights
-checkpoint_path = '../training_only_analytical_4/weights.weights.h5'
+checkpoint_path = f'training_only_analytical_{trial}/weights.weights.h5'
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 # Create callback to save model's weights
@@ -118,8 +122,8 @@ test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.sha
 # Train model
 model.fit(x=train_gaussians_reshaped,
           y=train_binary_reshaped,
-          batch_size=64,
-          epochs=100, 
+          batch_size=n_batch,
+          epochs=25, 
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
           callbacks=[cp_callback, es_callback])
 
@@ -159,4 +163,4 @@ ds_with_results = xr.Dataset(
     }
 )
 
-ds_with_results.to_netcdf("/home/shasko/Desktop/internship_2025/saved_results_only_analytical_4.nc")
+ds_with_results.to_netcdf(f"/home/shasko/Desktop/internship_2025/saved_results_only_analytical_{trial}.nc")

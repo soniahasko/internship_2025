@@ -6,7 +6,7 @@ import xarray as xr
 from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
 
-file = '/home/shasko/Desktop/internship_2025/evaluation_set/test_1_patterns_Cu_cubic_COD_peakslabeled_noisy.nc'
+file = '/home/shasko/Desktop/internship_2025/evaluation_set/test_1_patterns_NaCl_cubic_peakslabeled_noisy.nc'
 
 # List comprehension to get all path names
 ds = xr.open_dataset(file, engine='netcdf4')
@@ -32,7 +32,7 @@ binary_new_reshaped = binary_new.reshape(binary_new.shape[0], binary_new.shape[1
 
 
 
-n_batch, n_timesteps, n_input_dim = 64, window_size, 1
+n_batch, n_timesteps, n_input_dim = 128, window_size, 1
 
 def build_model():
     model = models.Sequential()
@@ -46,7 +46,7 @@ def build_model():
 model = build_model()
 
 # Load saved weights
-model.load_weights('/home/shasko/Desktop/internship_2025/training_only_analytical_4/weights.weights.h5')
+model.load_weights('/home/shasko/Desktop/internship_2025/training_only_analytical_8_n_batch_128/weights.weights.h5')
 
 # Predict
 predictions_new = model.predict(gaussians_new_reshaped)
@@ -64,12 +64,11 @@ def vis(idx_lst):
 
     for idx in idx_lst:
         plt.figure(figsize=(10,8))
-        plt.plot(predictions_new[idx], color='purple', label='Prediction Probabilities')
-        plt.plot(test_binary_reshaped[idx] + 1, color='green', label='True Peaks')
-        plt.plot(gaussians_new_reshaped[idx] + 2, color='orange', label='Signal')
+        plt.plot(x_new, predictions_new[idx], color='purple', label='Prediction Probabilities')
+        plt.plot(x_new, test_binary_reshaped[idx] + 1, color='green', label='True Peaks')
+        plt.plot(x_new, gaussians_new_reshaped[idx] + 2, color='orange', label='Signal')
         plt.legend(bbox_to_anchor=(1.01, 1.02), loc='upper left', fontsize=15)
         plt.tight_layout()
-        plt.title(f'Pattern {idx+1}/2 for ZnO hexagonal')
         # plt.savefig('/nsls2/users/shasko/Repos/internship_2025/saved_figures/gaussian_jul2_idx12')
         plt.show()
 

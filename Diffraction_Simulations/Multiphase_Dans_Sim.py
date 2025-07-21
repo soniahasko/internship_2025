@@ -33,7 +33,7 @@ def add_noise_by_percentage(signal, noise_percentage):
 
     return noisy_signal
 
-cif_list = ['NaCl_cubic', 'BaSO4_orthorhombic']
+cif_list = ['PSn_tetragonal_COD', 'NaCl_cubic']
 cif_files_lst = [f'cif_files/{f}.cif' for f in cif_list]
 
 crystals = [dif.Crystal(cif_file) for cif_file in cif_files_lst]
@@ -164,7 +164,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 import os
 
 path = 'saved_data/'
-file = f'ds_multiphase_dans_nacl_baso4_1.nc'
+file = f'ds_multiphase_dans_psn_nacl_1.nc'
 
 ds.to_netcdf(os.path.join(path, file))
 with ZipFile(os.path.join(path,file.replace('.nc','.zip')), 'w', ZIP_DEFLATED) as zObject:
