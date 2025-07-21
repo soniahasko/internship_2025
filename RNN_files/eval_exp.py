@@ -65,7 +65,7 @@ def return_data(filename):
     
     return intens, tth
 
-filename_str = 'CeO2'
+filename_str = 'LaB6_brac'
 num = 5 # training weights file to load in 
 intens, tth = return_data(filename_str)
 
@@ -119,7 +119,7 @@ predictions = model.predict(inten_exp_reshaped)
 print(f'predictions are {predictions}')
 
 
-fig, axs = plt.subplots(ncols=2,nrows=2, figsize=(24,14))
+fig, axs = plt.subplots(ncols=2,nrows=2, figsize=(24,14), sharex=True)
 
 for num, ax in enumerate(axs.flat):
 
