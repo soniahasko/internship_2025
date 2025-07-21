@@ -65,8 +65,8 @@ def return_data(filename):
     
     return intens, tth
 
-filename_str = 'LaB6_brac'
-num = 5 # training weights file to load in 
+filename_str = 'LaB6_660c'
+num_weights = 5 # training weights file to load in 
 intens, tth = return_data(filename_str)
 
 tth_exp_unpadded = np.mean(tth, axis=0)
@@ -112,7 +112,7 @@ def build_model():
 model = build_model()
 
 # Load saved weights
-model.load_weights(f'/home/shasko/Desktop/internship_2025/training_only_analytical_{num}/weights.weights.h5')
+model.load_weights(f'/home/shasko/Desktop/internship_2025/training_only_analytical_{num_weights}/weights.weights.h5')
 
 # Predict
 predictions = model.predict(inten_exp_reshaped)
@@ -139,5 +139,5 @@ for num, ax in enumerate(axs.flat):
     ax.set_xlim(0,5)
     ax.legend(loc='upper left')
 
-plt.savefig(f'avg_{filename_str}_exp_trainingweights_{num}.png')
+plt.savefig(f'saved_figures/avg_{filename_str}_exp_trainingweights_{num_weights}.png')
 plt.show()
