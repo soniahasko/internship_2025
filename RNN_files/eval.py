@@ -6,7 +6,7 @@ import xarray as xr
 from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
 
-file = '/home/shasko/Desktop/internship_2025/evaluation_set/test_1_patterns_PSn_tetragonal_COD_peakslabeled_noisy.nc'
+file = '/home/shasko/Desktop/internship_2025/evaluation_set/test_1_patterns_Cu_cubic_COD_peakslabeled_noisy.nc'
 
 # List comprehension to get all path names
 ds = xr.open_dataset(file, engine='netcdf4')
@@ -72,14 +72,13 @@ binary_ones = binary_sequence[idx_ones]
 idx = 0
 
 def vis():
-    plt.figure(figsize=(10,8))
-    plt.plot(x_new, predictions_new[idx], color='#00ADDC', label='Prediction Probabilities')
-
-    plt.vlines(x_new_ones, 1.025, 1.050, label="True Peaks", linewidth=1.0, color='#B72467')
+    fig, axs = plt.subplots(2,1)
+    axs[1].plot(x_new, predictions_new[idx], color='#00ADDC', label='Prediction Probabilities')
+    axs[0].vlines(x_new_ones, 1.025, 1.065, label="True Peaks", linewidth=1.0, color='#B72467')
 
     # plt.plot(x_new, test_binary_reshaped[idx] * 0.05 + 1, color='green', label='True Peaks')
-    plt.plot(x_new, gaussians_new_reshaped[idx] + 1.075, color='#B2D33B', label='Pattern')
-    plt.legend(bbox_to_anchor=(1.01, 1.02), loc='upper left', fontsize=15)
+    axs[0].plot(x_new, gaussians_new_reshaped[idx] + 1.075, color='#B2D33B', label='Pattern')
+
     plt.tight_layout()
     # plt.savefig('/nsls2/users/shasko/Repos/internship_2025/saved_figures/gaussian_jul2_idx12')
     plt.show()
