@@ -72,7 +72,7 @@ binary_ones = binary_sequence[idx_ones]
 idx = 0
 
 def vis():
-    fig, axs = plt.subplots(2,1)
+    fig, axs = plt.subplots(2,1, sharex=True)
     axs[1].plot(x_new, predictions_new[idx], color='#00ADDC', label='Prediction Probabilities')
     axs[0].vlines(x_new_ones, 1.025, 1.065, label="True Peaks", linewidth=1.0, color='#B72467')
 
