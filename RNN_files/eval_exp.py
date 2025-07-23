@@ -65,7 +65,7 @@ def return_data(filename):
     
     return intens, tth
 
-filename_str = 'CeO2'
+filename_str = 'LaB6_brac'
 num_weights = 5 # training weights file to load in 
 intens, tth = return_data(filename_str)
 
@@ -112,11 +112,14 @@ def build_model():
 model = build_model()
 
 # Load saved weights
-model.load_weights(f'/home/shasko/Desktop/internship_2025/training_only_analytical_{num_weights}/weights.weights.h5')
+model.load_w+eights(f'/home/shasko/Desktop/internship_2025/training_only_analytical_{num_weights}/weights.weights.h5')
 
 # Predict
 predictions = model.predict(inten_exp_reshaped)
 print(f'predictions are {predictions}')
+
+# save the predictions to a npy file or a csv
+
 
 def vis_subplots():
 
@@ -126,19 +129,18 @@ def vis_subplots():
 
         # linear vs sqrt scale
         if num == 0:
-            ax.plot(tth_exp, inten_exp_reshaped[0], color='orange', label=f'Pattern for {filename_str}')
+            ax.plot(tth_exp, inten_exp_reshaped[0], color='#B2D33B', label=f'Pattern for {filename_str}')
         elif num == 1:
-            ax.plot(tth_exp, np.sqrt(inten_exp_reshaped[0]), color='orange', label=f'Sqrt Pattern')
+            ax.plot(tth_exp, np.sqrt(inten_exp_reshaped[0]), color='#B2D33B', label=f'Sqrt Pattern')
         elif num in [2,3]:
-            ax.plot(tth_exp, predictions[0], color='purple', label='Prediction Probabilities')
+            ax.plot(tth_exp, predictions[0], color='#00ADDC', label='Prediction Probabilities')
 
         if num in [0,2]:
-            ax.set_ylim(0,1)
+            ax.set_ylim(-0.08,1.04)
         elif num in [3]:
-            ax.set_ylim(0,0.1)
+            ax.set_ylim(0, 1.04)
 
-        ax.set_xlim(0,5)
-        ax.legend(loc='upper left')
+        ax.set_xlim(1,5)
 
     # plt.savefig(f'saved_figures/avg_{filename_str}_exp_trainingweights_{num_weights}.png')
     plt.show()
