@@ -17,31 +17,25 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 import csv
 
-n_batch = int(sys.argv[1])
-
 # Add the parent directory to sys.path
 sys.path.append(os.path.abspath(".."))
 
 path = '/home/shasko/Desktop/internship_2025/'
 filenames = [
-             'saved_data/gaussian_functions_small_var_amp_noisy_11837_stddevamp.nc',
-             'saved_data/gaussian_functions_medium_var_amp_noisy_11837_stddevamp.nc',
-             'saved_data/gaussian_functions_large_var_amp_noisy_11837_stddevamp.nc',
-             'saved_data/gaussian_functions_very_large_var_amp_noisy_11837_stddevamp.nc',
-             'saved_data/lorentzian_functions_small_var_amps_noisy_11837_3000.nc',
-             'saved_data/lorentzian_functions_medium_var_amps_noisy_11837_3000.nc',
-             'saved_data/lorentzian_functions_large_var_amps_noisy_11837_3000.nc',
-             'saved_data/lorentzian_functions_very_large_var_amps_noisy_11837_3000.nc',
-             'saved_data/psuedovoigt_functions_small_var_amps_noisy_11837_3000.nc',
-             'saved_data/psuedovoigt_functions_medium_var_amps_noisy_11837_3000.nc',
-             'saved_data/psuedovoigt_functions_large_var_amps_noisy_11837_3000.nc',
-             'saved_data/psuedovoigt_functions_very_large_var_amps_noisy_11837_3000.nc',
-             'saved_data/asymmetric_functions_small_noisy.nc',
-             'saved_data/asymmetric_functions_medium_noisy.nc',
-             'saved_data/asymmetric_functions_large_noisy.nc',
-             'saved_data/asymmetric_functions_very_large_noisy.nc'
+             'saved_data/compare_G_small_2000.nc',
+             'saved_data/compare_L_small_2000.nc',
+             'saved_data/compare_pv_small_2000.nc',
+             'saved_data/compare_G_medium_2000.nc',
+             'saved_data/compare_L_medium_2000.nc',
+             'saved_data/compare_pv_medium_2000.nc',
+             'saved_data/compare_G_large_2000.nc',
+             'saved_data/compare_L_large_2000.nc',
+             'saved_data/compare_pv_large_2000.nc',
+             'saved_data/compare_G_very_large_2000.nc',
+             'saved_data/compare_L_very_large_2000.nc',
+             'saved_data/compare_pv_very_large_2000.nc'
              ]
-trial = f'8_n_batch_{n_batch}'
+trial = 9
              
 # List comprehension to get all path names
 full_paths = [f'{path}{i}' for i in filenames]
@@ -79,7 +73,7 @@ for j in range(test_gaussians.shape[0]):
     min_inten = np.min(test_gaussians[j])
     test_gaussians_sc[j] = (test_gaussians[j] - min_inten) / (max_inten - min_inten)
 
-n_timesteps, n_input_dim = window_size, 1
+n_timesteps, n_batch, n_input_dim = window_size, 64, 1
 
 model = models.Sequential()
 model.add(Input(shape=(n_timesteps, n_input_dim)))
