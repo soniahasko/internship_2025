@@ -65,8 +65,8 @@ def return_data(filename):
     
     return intens, tth
 
-filename_str = 'LaB6_brac'
-num_weights = 5 # training weights file to load in 
+filename_str = 'Ni'
+num_weights = f'12_G' # training weights file to load in 
 intens, tth = return_data(filename_str)
 
 tth_exp_unpadded = np.mean(tth, axis=0)

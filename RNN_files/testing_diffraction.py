@@ -22,20 +22,25 @@ sys.path.append(os.path.abspath(".."))
 
 path = '/home/shasko/Desktop/internship_2025/'
 filenames = [
-             'saved_data/compare_G_small_2000.nc',
-             'saved_data/compare_L_small_2000.nc',
-             'saved_data/compare_pv_small_2000.nc',
-             'saved_data/compare_G_medium_2000.nc',
-             'saved_data/compare_L_medium_2000.nc',
-             'saved_data/compare_pv_medium_2000.nc',
-             'saved_data/compare_G_large_2000.nc',
-             'saved_data/compare_L_large_2000.nc',
-             'saved_data/compare_pv_large_2000.nc',
-             'saved_data/compare_G_very_large_2000.nc',
-             'saved_data/compare_L_very_large_2000.nc',
-             'saved_data/compare_pv_very_large_2000.nc'
+             'saved_data/compare_pv_small_1500.nc',
+             'saved_data/compare_pv_medium_1500.nc',
+             'saved_data/compare_pv_large_1500.nc',
+             'saved_data/compare_pv_very_large_1500.nc',
+             'saved_data/compare_L_small_1500.nc',
+             'saved_data/compare_L_medium_1500.nc',
+             'saved_data/compare_L_large_1500.nc',
+             'saved_data/compare_L_very_large_1500.nc',
+             'saved_data/compare_G_small_1500.nc',
+             'saved_data/compare_G_medium_1500.nc',
+             'saved_data/compare_G_large_1500.nc',
+             'saved_data/compare_G_very_large_1500.nc',
+             'saved_data/compare_ASG_small_1500.nc',
+             'saved_data/compare_ASG_medium_1500.nc',
+             'saved_data/compare_ASG_large_1500.nc',
+             'saved_data/compare_ASG_very_large_1500.nc',
+             
              ]
-trial = 9
+trial = f'13'
              
 # List comprehension to get all path names
 full_paths = [f'{path}{i}' for i in filenames]
