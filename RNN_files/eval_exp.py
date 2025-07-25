@@ -112,7 +112,7 @@ def build_model():
 model = build_model()
 
 # Load saved weights
-model.load_w+eights(f'/home/shasko/Desktop/internship_2025/training_only_analytical_{num_weights}/weights.weights.h5')
+model.load_weights(f'/home/shasko/Desktop/internship_2025/training_only_analytical_{num_weights}/weights.weights.h5')
 
 # Predict
 predictions = model.predict(inten_exp_reshaped)
@@ -146,3 +146,5 @@ def vis_subplots():
     plt.show()
 
 vis_subplots()
+
+# make function that takes out the padding for the predictions and for vis - strip out everything that is irrelevant after making predictions

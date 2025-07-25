@@ -33,9 +33,11 @@ echo -e "ecgenv/\n.venv/\nvenv/\n__pycache__/\n*.pyc\n" >> .gitignore
 
 # pixi environments
 .pixi
-.toml
-.lock
+*.toml
+*.lock
 *.egg-info
+pixi.lock
+pixi.toml
 
 # Ignore TensorFlow/Keras checkpoints
 RNN_files/training/checkpoint
