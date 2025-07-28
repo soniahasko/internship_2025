@@ -7,7 +7,7 @@ from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
 import sys, os
 import pandas as pd
-
+import csv
 
 def return_data(filename):
     if filename == 'LaB6_brac':
@@ -63,10 +63,19 @@ def return_data(filename):
         intens = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[1].values for file in files]
         tth = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[0].values for file in files]
     
+    elif filename == 'LaB6_argonne':
+        files_wo_path = [
+                'LaB6_from_Dan_rebinned.csv',
+                ]
+        path = '/home/shasko/Downloads/'
+        df = pd.read_csv(f'{path}{files_wo_path[0]}')
+        intens = [df['y'].values]
+        tth = [df['x_rescaled'].values]
+    
     return intens, tth
 
-filename_str = 'Ni'
-num_weights = f'12_G' # training weights file to load in 
+filename_str = 'LaB6_660c'
+num_weights = f'13' # training weights file to load in 
 intens, tth = return_data(filename_str)
 
 tth_exp_unpadded = np.mean(tth, axis=0)
@@ -78,6 +87,7 @@ inten_exp_unpadded = np.array(inten_exp_unpadded)
 inten_exp = np.zeros((11837, ))
 
 tth_exp = np.linspace(1,10,11837)
+print(inten_exp_unpadded.shape)
 
 for i in range(inten_exp_unpadded.shape[0]):
     inten_exp[i] = inten_exp_unpadded[i]
@@ -129,9 +139,9 @@ def vis_subplots():
 
         # linear vs sqrt scale
         if num == 0:
-            ax.plot(tth_exp, inten_exp_reshaped[0], color='#B2D33B', label=f'Pattern for {filename_str}')
+            ax.plot(tth_exp, inten_exp_reshaped[0], color='#25B574', label=f'Pattern for {filename_str}')
         elif num == 1:
-            ax.plot(tth_exp, np.sqrt(inten_exp_reshaped[0]), color='#B2D33B', label=f'Sqrt Pattern')
+            ax.plot(tth_exp, np.sqrt(inten_exp_reshaped[0]), color='#25B574', label=f'Sqrt Pattern')
         elif num in [2,3]:
             ax.plot(tth_exp, predictions[0], color='#00ADDC', label='Prediction Probabilities')
 

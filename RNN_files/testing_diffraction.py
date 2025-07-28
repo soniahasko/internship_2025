@@ -40,7 +40,7 @@ filenames = [
              'saved_data/compare_ASG_very_large_1500.nc',
              
              ]
-trial = f'13'
+trial = f'14'
              
 # List comprehension to get all path names
 full_paths = [f'{path}{i}' for i in filenames]
@@ -122,7 +122,7 @@ test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.sha
 model.fit(x=train_gaussians_reshaped,
           y=train_binary_reshaped,
           batch_size=n_batch,
-          epochs=25, 
+          epochs=100, 
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
           callbacks=[cp_callback, es_callback])
 
