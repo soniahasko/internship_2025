@@ -12,14 +12,24 @@ from sklearn.model_selection import train_test_split
 sys.path.append(os.path.abspath(".."))
 
 path = '/home/shasko/Desktop/internship_2025/'
-filenames = ['evaluation_set/Ga2O3_monoclinic_data_100',
-             'evaluation_set/TiO2_tetragonal_data_100',
-             'evaluation_set/BaAl2O4_hexagonal_data_100',
-             'evaluation_set/Al2SO43_trigonal_data_100'
+# filenames = ['evaluation_set/Ga2O3_monoclinic_data_100',
+#              'evaluation_set/TiO2_tetragonal_data_100',
+#              'evaluation_set/BaAl2O4_hexagonal_data_100',
+#              'evaluation_set/Al2SO43_trigonal_data_100'
+#              ]
+filenames = [
+             'saved_data/compare_pv_small_3000.nc',
+             'saved_data/compare_pv_medium_3000.nc',
+             'saved_data/compare_pv_large_3000.nc',
+             'saved_data/compare_pv_very_large_3000.nc',
+             'saved_data/compare_G_small_3000.nc',
+             'saved_data/compare_G_medium_3000.nc',
+             'saved_data/compare_G_large_3000.nc',
+             'saved_data/compare_G_very_large_3000.nc'
+             
              ]
-
 # List comprehension to get all path names
-full_paths = [f'{path}{i}.nc' for i in filenames]
+full_paths = [f'{path}{i}' for i in filenames]
 all_datasets = [xr.open_dataset(p, engine='netcdf4') for p in full_paths] # list of all the Datasets
 
 combined = xr.concat(all_datasets, dim="pattern")
@@ -68,11 +78,11 @@ def build_model():
 model = build_model()
 
 # Load saved weights
-model.load_weights('/home/shasko/Desktop/internship_2025/training_5/weights.weights.h5')
+model.load_weights('/home/shasko/Desktop/internship_2025/training_only_analytical_19/weights.weights.h5')
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 
-checkpoint_path = 'training_6/weights.weights.h5'
+checkpoint_path = 'training_only_analytical_19_continued/weights.weights.h5'
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 # Create callback to save model's weights
@@ -102,7 +112,7 @@ test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.sha
 model.fit(x=train_gaussians_reshaped,
           y=train_binary_reshaped,
           batch_size=64,
-          epochs=160,
+          epochs=8,
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
           callbacks=[cp_callback, es_callback])
 
@@ -142,4 +152,4 @@ ds_with_results = xr.Dataset(
     }
 )
 
-ds_with_results.to_netcdf("/home/shasko/Desktop/internship_2025/saved_data/saved_results_3.nc")
+ds_with_results.to_netcdf("/home/shasko/Desktop/internship_2025/saved_data/saved_results_19_continued.nc")

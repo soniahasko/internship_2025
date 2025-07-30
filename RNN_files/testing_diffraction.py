@@ -16,31 +16,27 @@ import sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import f1_score
 import csv
+import pandas as pd
 
 # Add the parent directory to sys.path
 sys.path.append(os.path.abspath(".."))
 
 path = '/home/shasko/Desktop/internship_2025/'
 filenames = [
-             'saved_data/compare_pv_small_1500.nc',
-             'saved_data/compare_pv_medium_1500.nc',
-             'saved_data/compare_pv_large_1500.nc',
-             'saved_data/compare_pv_very_large_1500.nc',
-             'saved_data/compare_L_small_1500.nc',
-             'saved_data/compare_L_medium_1500.nc',
-             'saved_data/compare_L_large_1500.nc',
-             'saved_data/compare_L_very_large_1500.nc',
-             'saved_data/compare_G_small_1500.nc',
-             'saved_data/compare_G_medium_1500.nc',
-             'saved_data/compare_G_large_1500.nc',
-             'saved_data/compare_G_very_large_1500.nc',
-             'saved_data/compare_ASG_small_1500.nc',
-             'saved_data/compare_ASG_medium_1500.nc',
-             'saved_data/compare_ASG_large_1500.nc',
-             'saved_data/compare_ASG_very_large_1500.nc',
-             
+             'saved_data/compare_pv_small_2000.nc',
+             'saved_data/compare_pv_medium_2000.nc',
+             'saved_data/compare_pv_large_2000.nc',
+             'saved_data/compare_pv_very_large_2000.nc',
+             'saved_data/compare_L_small_2000.nc',
+             'saved_data/compare_L_medium_2000.nc',
+             'saved_data/compare_L_large_2000.nc',
+             'saved_data/compare_L_very_large_2000.nc',
+             'saved_data/compare_G_small_2000.nc',
+             'saved_data/compare_G_medium_2000.nc',
+             'saved_data/compare_G_large_2000.nc',
+             'saved_data/compare_G_very_large_2000.nc'             
              ]
-trial = f'14'
+trial = f'9_continued'
              
 # List comprehension to get all path names
 full_paths = [f'{path}{i}' for i in filenames]
@@ -78,7 +74,7 @@ for j in range(test_gaussians.shape[0]):
     min_inten = np.min(test_gaussians[j])
     test_gaussians_sc[j] = (test_gaussians[j] - min_inten) / (max_inten - min_inten)
 
-n_timesteps, n_batch, n_input_dim = window_size, 64, 1
+n_timesteps, batch_size, n_input_dim = window_size, 64, 1
 
 model = models.Sequential()
 model.add(Input(shape=(n_timesteps, n_input_dim)))
@@ -103,6 +99,52 @@ es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
                                                verbose=2,
                                                restore_best_weights=True)
 
+# Load in and read LaB6 data
+def eval_LaB6():    
+    files = ['/home/shasko/Downloads/patterns_for_sonia/LaB6_brac1_xrd_calib_20250720-183936_bdf715_primary-1_mean_tth.chi']
+    intens = [pd.read_csv(f, delim_whitespace=True, header=None, skiprows=1)[1].values for f in files]
+    tth = [pd.read_csv(f, delim_whitespace=True, header=None, skiprows=1)[0].values for f in files]
+
+    tth_exp_unpadded = np.mean(tth, axis=0)
+    inten_exp_unpadded = np.mean(intens, axis=0)
+
+    tth_exp_unpadded = np.array(tth_exp_unpadded)
+    inten_exp_unpadded = np.array(inten_exp_unpadded)
+
+    inten_exp = np.zeros((11837, ))
+
+    tth_exp = np.linspace(1,10,11837)
+    print(inten_exp_unpadded.shape)
+
+    for i in range(inten_exp_unpadded.shape[0]):
+        inten_exp[i] = inten_exp_unpadded[i]
+    inten_exp = inten_exp.reshape(1, inten_exp.shape[0])
+
+    window_size = tth_exp.shape[0]
+
+    # Scale the data
+    inten_exp_sc = np.zeros_like(inten_exp)
+
+    for j in range(inten_exp.shape[0]):
+        max_inten = np.max(inten_exp[j])
+        min_inten = np.min(inten_exp[j])
+        inten_exp_sc[j] = (inten_exp[j] - min_inten) / (max_inten - min_inten)
+
+    inten_exp_reshaped = inten_exp_sc.reshape(inten_exp_sc.shape[0], inten_exp_sc.shape[1], 1)
+
+    return tth_exp, inten_exp_reshaped
+
+LaB6_tth_exp, LaB6_inten_exp_reshaped = eval_LaB6()
+
+# Create callback to plot LaB6 predictions after every epoch
+lab6_callback = tf.keras.callbacks.LambdaCallback(on_epoch_end=lambda epoch, logs: (
+    plt.figure(),
+    plt.plot(LaB6_tth_exp, LaB6_inten_exp_reshaped[0] + 1.04, label='Pattern'),
+    plt.plot(LaB6_tth_exp, model.predict(LaB6_inten_exp_reshaped, verbose=0)[0], label='Pred'),
+    plt.legend(),
+    plt.show())
+)
+
 
 # Reshape intensity data
 train_gaussians_reshaped = train_gaussians_sc.reshape(train_gaussians_sc.shape[0], train_gaussians_sc.shape[1], 1)
@@ -121,10 +163,10 @@ test_binary_reshaped = test_binary.reshape(test_binary.shape[0], test_binary.sha
 # Train model
 model.fit(x=train_gaussians_reshaped,
           y=train_binary_reshaped,
-          batch_size=n_batch,
-          epochs=100, 
+          batch_size=batch_size, # DECREASE the batch size
+          epochs=75, 
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
-          callbacks=[cp_callback, es_callback])
+          callbacks=[cp_callback, es_callback, lab6_callback])
 
 # Make predictions on held-out test set
 binary_pred = model.predict(test_gaussians_reshaped,
@@ -163,3 +205,5 @@ ds_with_results = xr.Dataset(
 )
 
 ds_with_results.to_netcdf(f"/home/shasko/Desktop/internship_2025/saved_results_only_analytical_{trial}.nc")
+
+# for each epoch plot how the model performs on LaB6

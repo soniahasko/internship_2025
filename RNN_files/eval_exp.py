@@ -9,73 +9,53 @@ import sys, os
 import pandas as pd
 import csv
 
+filename_str = sys.argv[1]
+num_weights = sys.argv[2]
+
 def return_data(filename):
-    if filename == 'LaB6_brac':
-        files_wo_path = [
-                'LaB6_brac1_xrd_calib_20250720-183936_bdf715_primary-1_mean_tth.chi',
-                ]
-        path = '/home/shasko/Downloads/standard_patterns_for_Sonia'
-        files = [f'{path}/{filename}' for filename in files_wo_path]
-        intens = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[1].values for file in files]
-        tth = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[0].values for file in files]
+    path = '/home/shasko/Downloads/patterns_for_sonia'
 
-    elif filename == 'CeO2':
-        files_wo_path = [
-                 'xrd_CeO2_std_brac1_20250720-194639_811d45_primary-1_mean_tth.chi',
-                 'xrd_CeO2_std_brac1_20250721-001045_b26be7_primary-1_mean_tth.chi',
-                 'xrd_CeO2_std_brac1_20250721-043453_3a683f_primary-1_mean_tth.chi'
-                ]
-        path = '/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged'
-        files = [f'{path}/{filename}' for filename in files_wo_path]
-        intens = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[1].values for file in files]
-        tth = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[0].values for file in files]
-
-    elif filename == 'empty_kapton':
-        files_wo_path = [
-                 'xrd_empty_kapton_brac1_20250720-194025_5e1923_primary-1_mean_tth.chi',
-                 'xrd_empty_kapton_brac1_20250721-000431_bff40a_primary-1_mean_tth.chi',
-                 'xrd_empty_kapton_brac1_20250721-042839_b15c4c_primary-1_mean_tth.chi'
-                ]
-        path = '/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged'
-        files = [f'{path}/{filename}' for filename in files_wo_path]
-        intens = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[1].values for file in files]
-        tth = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[0].values for file in files]
-
-    elif filename == 'LaB6_660c':
-        files_wo_path = [
-                 'xrd_LaB6_660c_std_brac1_20250720-194230_f86ca9_primary-1_mean_tth.chi',
+    file_map = {
+        'LaB6_brac': ['LaB6_brac1_xrd_calib_20250720-183936_bdf715_primary-1_mean_tth.chi'],
+        'CeO2_std_avg': ['xrd_CeO2_std_brac1_20250720-194639_811d45_primary-1_mean_tth.chi',
+                         'xrd_CeO2_std_brac1_20250721-001045_b26be7_primary-1_mean_tth.chi',
+                         'xrd_CeO2_std_brac1_20250721-043453_3a683f_primary-1_mean_tth.chi'],
+        'empty_kapton_avg': ['xrd_empty_kapton_brac1_20250720-194025_5e1923_primary-1_mean_tth.chi',
+                        'xrd_empty_kapton_brac1_20250721-000431_bff40a_primary-1_mean_tth.chi',
+                        'xrd_empty_kapton_brac1_20250721-042839_b15c4c_primary-1_mean_tth.chi'],
+        'LaB6_660c_avg': ['xrd_LaB6_660c_std_brac1_20250720-194230_f86ca9_primary-1_mean_tth.chi',
                  'xrd_LaB6_660c_std_brac1_20250721-000636_f3c480_primary-1_mean_tth.chi',
                  'xrd_LaB6_660c_std_brac1_20250721-043043_030b08_primary-1_mean_tth.chi', 
                  'xrd_LaB6_660c_std_brac2_20250720-205807_6c9c36_primary-1_mean_tth.chi',
                  'xrd_LaB6_660c_std_brac2_20250721-012210_6fd6a8_primary-1_mean_tth.chi', 
-                 'xrd_LaB6_660c_std_brac2_20250721-054620_e845a0_primary-1_mean_tth.chi'
-                ]
-        path = '/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged'
-        files = [f'{path}/{filename}' for filename in files_wo_path]
-        intens = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[1].values for file in files]
-        tth = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[0].values for file in files]
-    
-    elif filename == 'Ni':
-        files = ['/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged/xrd_Ni_std_brac1_20250720-194434_7d7ebd_primary-1_mean_tth.chi',
+                 'xrd_LaB6_660c_std_brac2_20250721-054620_e845a0_primary-1_mean_tth.chi'],
+        'Ni_avg': ['/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged/xrd_Ni_std_brac1_20250720-194434_7d7ebd_primary-1_mean_tth.chi',
                  '/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged/xrd_Ni_std_brac1_20250721-000840_b6458b_primary-1_mean_tth.chi',
-                 '/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged/xrd_Ni_std_brac1_20250721-043248_1fec02_primary-1_mean_tth.chi']
+                 '/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged/xrd_Ni_std_brac1_20250721-043248_1fec02_primary-1_mean_tth.chi'],
+        'LaB6_argonne': ['LaB6_from_Dan_rebinned.csv'],
+        'MgWO10': ['xrd_10_LMT_MgW_O_10_20250725-041024_5788da_primary-1_mean_tth.chi'],
+        'TiWO15': ['xrd_14_LMNb_TiW_O_15_20250725-041833_dbc9cd_primary-1_mean_tth.chi'],
+        'GaNbO': ['xrd_25_LM_GaNb_O_20250725-044721_015154_primary-1_mean_tth.chi'],
+        'CaAlCl': ['xrd_CaAlCl_MMO_CO2_20240627-160840_3a269a_primary-1_mean_tth.chi'],
+        'CeO2_std': ['xrd_CeO2_std_20250724-184324_d9d30a_primary-1_mean_tth.chi']
+    }
 
-        intens = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[1].values for file in files]
-        tth = [pd.read_csv(os.path.join(file), delimiter='\s+', header=None, skiprows=1)[0].values for file in files]
+    if filename not in file_map:
+        raise ValueError(f'{filename} not found in file map')
     
-    elif filename == 'LaB6_argonne':
-        files_wo_path = [
-                'LaB6_from_Dan_rebinned.csv',
-                ]
-        path = '/home/shasko/Downloads/'
-        df = pd.read_csv(f'{path}{files_wo_path[0]}')
+    files = [os.path.join(path, f) for f in file_map[filename]]
+    
+    if filename == 'LaB6_argonne':  # Load in csvs
+        df = pd.read_csv(files[0])
         intens = [df['y'].values]
         tth = [df['x_rescaled'].values]
-    
+
+    else:  # generic loader for chi files
+        intens = [pd.read_csv(f, delim_whitespace=True, header=None, skiprows=1)[1].values for f in files]
+        tth = [pd.read_csv(f, delim_whitespace=True, header=None, skiprows=1)[0].values for f in files]
+
     return intens, tth
 
-filename_str = 'LaB6_660c'
-num_weights = f'13' # training weights file to load in 
 intens, tth = return_data(filename_str)
 
 tth_exp_unpadded = np.mean(tth, axis=0)
@@ -133,24 +113,28 @@ print(f'predictions are {predictions}')
 
 def vis_subplots():
 
-    fig, axs = plt.subplots(ncols=2,nrows=2, figsize=(24,14), sharex=True)
+    fig, axs = plt.subplots(ncols=1,nrows=2, figsize=(24,14), sharex=True)
 
     for num, ax in enumerate(axs.flat):
 
         # linear vs sqrt scale
         if num == 0:
             ax.plot(tth_exp, inten_exp_reshaped[0], color='#25B574', label=f'Pattern for {filename_str}')
+        # elif num == 1:
+        #     ax.plot(tth_exp, np.sqrt(inten_exp_reshaped[0]), color='#25B574', label=f'Sqrt Pattern')
         elif num == 1:
-            ax.plot(tth_exp, np.sqrt(inten_exp_reshaped[0]), color='#25B574', label=f'Sqrt Pattern')
-        elif num in [2,3]:
             ax.plot(tth_exp, predictions[0], color='#00ADDC', label='Prediction Probabilities')
 
-        if num in [0,2]:
+        if num in [0]:
             ax.set_ylim(-0.08,1.04)
-        elif num in [3]:
+        elif num in [1]:
             ax.set_ylim(0, 1.04)
-
-        ax.set_xlim(1,5)
+        ax.legend()
+        
+        if filename_str == 'LaB6_argonne':
+            ax.set_xlim(1,10)
+        else:
+            ax.set_xlim(1,5)
 
     # plt.savefig(f'saved_figures/avg_{filename_str}_exp_trainingweights_{num_weights}.png')
     plt.show()
