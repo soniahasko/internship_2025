@@ -34,9 +34,9 @@ filenames = [
              'saved_data/compare_G_small_2000.nc',
              'saved_data/compare_G_medium_2000.nc',
              'saved_data/compare_G_large_2000.nc',
-             'saved_data/compare_G_very_large_2000.nc'             
+             'saved_data/compare_G_very_large_2000.nc'      
              ]
-trial = f'9_continued'
+trial = f'test'
              
 # List comprehension to get all path names
 full_paths = [f'{path}{i}' for i in filenames]
@@ -136,15 +136,48 @@ def eval_LaB6():
 
 LaB6_tth_exp, LaB6_inten_exp_reshaped = eval_LaB6()
 
-# Create callback to plot LaB6 predictions after every epoch
-lab6_callback = tf.keras.callbacks.LambdaCallback(on_epoch_end=lambda epoch, logs: (
-    plt.figure(),
-    plt.plot(LaB6_tth_exp, LaB6_inten_exp_reshaped[0] + 1.04, label='Pattern'),
-    plt.plot(LaB6_tth_exp, model.predict(LaB6_inten_exp_reshaped, verbose=0)[0], label='Pred'),
-    plt.legend(),
-    plt.show())
-)
+peak_x_values = [
+    [1.353, 1.357], [1.545, 1.550], [1.693, 1.685], [1.818, 1.823],
+    [1.9285, 1.933], [2.0275, 2.0340], [2.204, 2.209], [2.285, 2.289],
+    [2.360, 2.365], [2.432, 2.437], [2.501, 2.506], [2.567, 2.572],
+    [2.6305, 2.6355], [2.751, 2.756], [2.809, 2.8135], [2.865, 2.869],
+    [2.919, 2.924], [2.972, 2.977], [3.024, 3.028], [3.074, 3.079],
+    [3.171, 3.177], [3.219, 3.224], [3.265, 3.270], [3.311, 3.316],
+    [3.4, 3.404], [3.442, 3.448], [3.526, 3.532], [3.567, 3.574],
+    [3.608, 3.614], [3.648, 3.654], [3.687, 3.694], [3.726, 3.7325],
+    [3.764, 3.771], [3.839, 3.847], [3.876, 3.883], [3.912, 3.920],
+    [3.949, 3.955], [3.984, 3.991], [4.020, 4.026], [4.054, 4.061]
+]
 
+# Ensure each range is sorted (to correct any flipped ranges)
+peak_ranges = [sorted(rng) for rng in peak_x_values]
+
+# Initialize labels
+LaB6_true_labels = np.zeros_like(LaB6_tth_exp, dtype=int)
+
+# Label all x values that fall within any of the peak ranges
+for low, high in peak_ranges:
+    mask = (LaB6_tth_exp >= low) & (LaB6_tth_exp <= high)
+    LaB6_true_labels[mask] = 1
+
+# Create callback to plot LaB6 predictions after every epoch
+# lab6_callback = tf.keras.callbacks.LambdaCallback(on_epoch_end=lambda epoch, logs: (
+    # plt.figure(),
+    # plt.plot(LaB6_tth_exp, LaB6_inten_exp_reshaped[0] + 1.04, label='Pattern'),
+    # plt.plot(LaB6_tth_exp, model.predict(LaB6_inten_exp_reshaped, verbose=0)[0], label='Pred'),
+    # plt.legend(),
+    # plt.show()
+# )
+
+def on_epoch_end(epoch, logs):
+    pred = model.predict(LaB6_inten_exp_reshaped, verbose=0)[0]
+    residual = np.abs(pred.flatten() - LaB6_true_labels) # take absolute values of the difference between each entry. residual should be + so sum of residuals will be +. big-small and small-big will be penalized based on magnitude, not sign
+    print(residual.shape)
+    print(f"\nEpoch {epoch+1}")
+    print("Residual:", residual)
+    print("Sum of residuals:", np.sum(residual))
+
+lab6_callback = tf.keras.callbacks.LambdaCallback(on_epoch_end=on_epoch_end)
 
 # Reshape intensity data
 train_gaussians_reshaped = train_gaussians_sc.reshape(train_gaussians_sc.shape[0], train_gaussians_sc.shape[1], 1)

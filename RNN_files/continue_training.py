@@ -7,6 +7,7 @@ from sklearn.metrics import f1_score
 import matplotlib.pyplot as plt
 import os, sys
 from sklearn.model_selection import train_test_split 
+import pandas as pd
 
 # Add the parent directory to sys.path
 sys.path.append(os.path.abspath(".."))
@@ -18,15 +19,18 @@ path = '/home/shasko/Desktop/internship_2025/'
 #              'evaluation_set/Al2SO43_trigonal_data_100'
 #              ]
 filenames = [
-             'saved_data/compare_pv_small_3000.nc',
-             'saved_data/compare_pv_medium_3000.nc',
-             'saved_data/compare_pv_large_3000.nc',
-             'saved_data/compare_pv_very_large_3000.nc',
-             'saved_data/compare_G_small_3000.nc',
-             'saved_data/compare_G_medium_3000.nc',
-             'saved_data/compare_G_large_3000.nc',
-             'saved_data/compare_G_very_large_3000.nc'
-             
+             'saved_data/compare_pv_small_2000.nc',
+             'saved_data/compare_pv_medium_2000.nc',
+             'saved_data/compare_pv_large_2000.nc',
+             'saved_data/compare_pv_very_large_2000.nc',
+             'saved_data/compare_L_small_2000.nc',
+             'saved_data/compare_L_medium_2000.nc',
+             'saved_data/compare_L_large_2000.nc',
+             'saved_data/compare_L_very_large_2000.nc',
+             'saved_data/compare_G_small_2000.nc',
+             'saved_data/compare_G_medium_2000.nc',
+             'saved_data/compare_G_large_2000.nc',
+             'saved_data/compare_G_very_large_2000.nc'      
              ]
 # List comprehension to get all path names
 full_paths = [f'{path}{i}' for i in filenames]
@@ -78,11 +82,11 @@ def build_model():
 model = build_model()
 
 # Load saved weights
-model.load_weights('/home/shasko/Desktop/internship_2025/training_only_analytical_19/weights.weights.h5')
+model.load_weights('/home/shasko/Desktop/internship_2025/training_only_analytical_24/weights.weights.h5')
 
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['acc'])
 
-checkpoint_path = 'training_only_analytical_19_continued/weights.weights.h5'
+checkpoint_path = 'training_only_analytical_24_continued/weights.weights.h5'
 checkpoint_dir = os.path.dirname(checkpoint_path)
 
 # Create callback to save model's weights
@@ -94,6 +98,90 @@ es_callback = tf.keras.callbacks.EarlyStopping(monitor='loss',
                                               patience=3,
                                               min_delta=1e-5,
                                               verbose=2)
+
+all_residual_sums = []
+
+# Load in and read LaB6 data
+def eval_LaB6():    
+    files = ['/home/shasko/Downloads/patterns_for_sonia/LaB6_brac1_xrd_calib_20250720-183936_bdf715_primary-1_mean_tth.chi']
+    intens = [pd.read_csv(f, delim_whitespace=True, header=None, skiprows=1)[1].values for f in files]
+    tth = [pd.read_csv(f, delim_whitespace=True, header=None, skiprows=1)[0].values for f in files]
+
+    tth_exp_unpadded = np.mean(tth, axis=0)
+    inten_exp_unpadded = np.mean(intens, axis=0)
+
+    tth_exp_unpadded = np.array(tth_exp_unpadded)
+    inten_exp_unpadded = np.array(inten_exp_unpadded)
+
+    inten_exp = np.zeros((11837, ))
+
+    tth_exp = np.linspace(1,10,11837)
+    print(inten_exp_unpadded.shape)
+
+    for i in range(inten_exp_unpadded.shape[0]):
+        inten_exp[i] = inten_exp_unpadded[i]
+    inten_exp = inten_exp.reshape(1, inten_exp.shape[0])
+
+    window_size = tth_exp.shape[0]
+
+    # Scale the data
+    inten_exp_sc = np.zeros_like(inten_exp)
+
+    for j in range(inten_exp.shape[0]):
+        max_inten = np.max(inten_exp[j])
+        min_inten = np.min(inten_exp[j])
+        inten_exp_sc[j] = (inten_exp[j] - min_inten) / (max_inten - min_inten)
+
+    inten_exp_reshaped = inten_exp_sc.reshape(inten_exp_sc.shape[0], inten_exp_sc.shape[1], 1)
+
+    return tth_exp, inten_exp_reshaped
+
+LaB6_tth_exp, LaB6_inten_exp_reshaped = eval_LaB6()
+
+peak_x_values = [
+    [1.353, 1.357], [1.545, 1.550], [1.693, 1.685], [1.818, 1.823],
+    [1.9285, 1.933], [2.0275, 2.0340], [2.204, 2.209], [2.285, 2.289],
+    [2.360, 2.365], [2.432, 2.437], [2.501, 2.506], [2.567, 2.572],
+    [2.6305, 2.6355], [2.751, 2.756], [2.809, 2.8135], [2.865, 2.869],
+    [2.919, 2.924], [2.972, 2.977], [3.024, 3.028], [3.074, 3.079],
+    [3.171, 3.177], [3.219, 3.224], [3.265, 3.270], [3.311, 3.316],
+    [3.4, 3.404], [3.442, 3.448], [3.526, 3.532], [3.567, 3.574],
+    [3.608, 3.614], [3.648, 3.654], [3.687, 3.694], [3.726, 3.7325],
+    [3.764, 3.771], [3.839, 3.847], [3.876, 3.883], [3.912, 3.920],
+    [3.949, 3.955], [3.984, 3.991], [4.020, 4.026], [4.054, 4.061]
+]
+
+# Ensure each range is sorted (to correct any flipped ranges)
+peak_ranges = [sorted(rng) for rng in peak_x_values]
+
+# Initialize labels
+LaB6_true_labels = np.zeros_like(LaB6_tth_exp, dtype=int)
+
+# Label all x values that fall within any of the peak ranges
+for low, high in peak_ranges:
+    mask = (LaB6_tth_exp >= low) & (LaB6_tth_exp <= high)
+    LaB6_true_labels[mask] = 1
+
+# Create callback to plot LaB6 predictions after every epoch
+# lab6_callback = tf.keras.callbacks.LambdaCallback(on_epoch_end=lambda epoch, logs: (
+    # plt.figure(),
+    # plt.plot(LaB6_tth_exp, LaB6_inten_exp_reshaped[0] + 1.04, label='Pattern'),
+    # plt.plot(LaB6_tth_exp, model.predict(LaB6_inten_exp_reshaped, verbose=0)[0], label='Pred'),
+    # plt.legend(),
+    # plt.show()
+# )
+
+def on_epoch_end(epoch, logs):
+    pred = model.predict(LaB6_inten_exp_reshaped, verbose=0)[0]
+    residual = np.abs(pred.flatten() - LaB6_true_labels) # take absolute values of the difference between each entry. residual should be + so sum of residuals will be +. big-small and small-big will be penalized based on magnitude, not sign
+    print(residual.shape)
+    print(f"\nEpoch {epoch+1}")
+    print("Residual:", residual)
+    print("Sum of residuals:", np.sum(residual))
+    all_residual_sums.append(np.sum(residual))
+
+lab6_callback = tf.keras.callbacks.LambdaCallback(on_epoch_end=on_epoch_end)
+
 # Reshape intensity data
 train_gaussians_reshaped = train_gaussians_sc.reshape(train_gaussians_sc.shape[0], train_gaussians_sc.shape[1], 1)
 val_gaussians_reshaped = val_gaussians_sc.reshape(val_gaussians_sc.shape[0], val_gaussians_sc.shape[1], 1)
@@ -114,7 +202,9 @@ model.fit(x=train_gaussians_reshaped,
           batch_size=64,
           epochs=8,
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
-          callbacks=[cp_callback, es_callback])
+          callbacks=[cp_callback, es_callback, lab6_callback])
+
+print(f'all_residual_sums: {all_residual_sums}')
 
 # Make predictions on held-out test set
 binary_pred = model.predict(test_gaussians_reshaped,

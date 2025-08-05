@@ -29,15 +29,26 @@ def return_data(filename):
                  'xrd_LaB6_660c_std_brac2_20250720-205807_6c9c36_primary-1_mean_tth.chi',
                  'xrd_LaB6_660c_std_brac2_20250721-012210_6fd6a8_primary-1_mean_tth.chi', 
                  'xrd_LaB6_660c_std_brac2_20250721-054620_e845a0_primary-1_mean_tth.chi'],
-        'Ni_avg': ['/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged/xrd_Ni_std_brac1_20250720-194434_7d7ebd_primary-1_mean_tth.chi',
-                 '/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged/xrd_Ni_std_brac1_20250721-000840_b6458b_primary-1_mean_tth.chi',
-                 '/home/shasko/Downloads/standard_patterns_for_Sonia/xrd_jogged/xrd_Ni_std_brac1_20250721-043248_1fec02_primary-1_mean_tth.chi'],
+        'Ni_avg': ['xrd_Ni_std_brac1_20250720-194434_7d7ebd_primary-1_mean_tth.chi',
+                 'xrd_Ni_std_brac1_20250721-000840_b6458b_primary-1_mean_tth.chi',
+                 'xrd_Ni_std_brac1_20250721-043248_1fec02_primary-1_mean_tth.chi'],
         'LaB6_argonne': ['LaB6_from_Dan_rebinned.csv'],
         'MgWO10': ['xrd_10_LMT_MgW_O_10_20250725-041024_5788da_primary-1_mean_tth.chi'],
         'TiWO15': ['xrd_14_LMNb_TiW_O_15_20250725-041833_dbc9cd_primary-1_mean_tth.chi'],
         'GaNbO': ['xrd_25_LM_GaNb_O_20250725-044721_015154_primary-1_mean_tth.chi'],
         'CaAlCl': ['xrd_CaAlCl_MMO_CO2_20240627-160840_3a269a_primary-1_mean_tth.chi'],
-        'CeO2_std': ['xrd_CeO2_std_20250724-184324_d9d30a_primary-1_mean_tth.chi']
+        'CeO2_std': ['xrd_CeO2_std_20250724-184324_d9d30a_primary-1_mean_tth.chi'],
+        'Cu_NPM_600': ['ExSituXRDdata/Cu_NPM_600Cannealed_XRD.txt'],
+        'Cu_NPM_original': ['ExSituXRDdata/Cu_NPM_as-synthesized_XRD.txt'],
+        'CuLiCl_NC_as_synth': ['ExSituXRDdata/CuLiCl_NC_as-synthesized_XRD.txt'],
+        'CuLiCl_NC_300': ['ExSituXRDdata/CuLiCl_NC_300Cannealed_XRD.txt'],
+        'CuLiCl_NC_600': ['ExSituXRDdata/CuLiCl_NC_600Cannealed_XRD.txt'],
+        'Fe_NPM_as_synth': ['ExSituXRDdata/Fe_NPM_as-synthesized_XRD.xye.txt'],
+        'Fe_NPM_300': ['ExSituXRDdata/Fe_NPM_300Cannealed_XRD.txt'],
+        'Fe_NPM_600': ['ExSituXRDdata/Fe_NPM_600Cannealed_XRD.txt'],
+        'FeLiCl_NC_as_synth': ['ExSituXRDdata/FeLiCl_NC_as-synthesized_XRD.txt'],
+        'FeLiCl_NC_300': ['ExSituXRDdata/FeLiCl_NC_300Cannealed_XRD.txt'],
+        'FeLiCl_NC_600': ['ExSituXRDdata/FeLiCl_NC_600Cannealed_XRD.txt']
     }
 
     if filename not in file_map:
@@ -49,7 +60,7 @@ def return_data(filename):
         df = pd.read_csv(files[0])
         intens = [df['y'].values]
         tth = [df['x_rescaled'].values]
-
+ 
     else:  # generic loader for chi files
         intens = [pd.read_csv(f, delim_whitespace=True, header=None, skiprows=1)[1].values for f in files]
         tth = [pd.read_csv(f, delim_whitespace=True, header=None, skiprows=1)[0].values for f in files]
