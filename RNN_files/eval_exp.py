@@ -76,8 +76,13 @@ tth_exp_unpadded = np.array(tth_exp_unpadded)
 inten_exp_unpadded = np.array(inten_exp_unpadded)
 
 inten_exp = np.zeros((11837, ))
+tth_exp = np.zeros((11837, ))
+# tth_exp = np.linspace(1,10,11837)
 
-tth_exp = np.linspace(1,10,11837)
+tth_exp[:tth_exp_unpadded.shape[0]] = tth_exp_unpadded # fill the final x array with all the actual tth values
+step = tth_exp_unpadded[1] - tth_exp_unpadded[0] # now figure out the step size for the tth values
+tth_exp[tth_exp_unpadded.shape[0]:] = tth_exp_unpadded[-1] + step * np.arange(1, 11837 - tth_exp_unpadded.shape[0] + 1) # fill the rest of the final x array with fake x values using same step size; this removes all the zeros
+
 print(inten_exp_unpadded.shape)
 
 for i in range(inten_exp_unpadded.shape[0]):
@@ -142,10 +147,10 @@ def vis_subplots():
             ax.set_ylim(0, 1.04)
         ax.legend()
         
-        if filename_str == 'LaB6_argonne':
-            ax.set_xlim(1,10)
-        else:
-            ax.set_xlim(1,5)
+        # if filename_str == 'LaB6_argonne':
+        #     ax.set_xlim(1,10)
+        # else:
+        #     ax.set_xlim(1,5)
 
     # plt.savefig(f'saved_figures/avg_{filename_str}_exp_trainingweights_{num_weights}.png')
     plt.show()

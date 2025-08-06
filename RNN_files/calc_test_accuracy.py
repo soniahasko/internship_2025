@@ -1,9 +1,12 @@
 import numpy as np
 import xarray as xr
 import matplotlib.pyplot as plt
+import os, sys
+
+training_set = int(sys.argv[1])
 
 # Open and read file
-file = 'saved_results_only_analytical_9.nc'
+file = f'saved_results_only_analytical_{training_set}.nc'
 ds = xr.open_dataset(file)
 
 true_y = ds['true_y'].values
