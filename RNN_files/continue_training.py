@@ -94,10 +94,11 @@ cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,
                                                  save_weights_only=True,
                                                  verbose=2) 
 
-es_callback = tf.keras.callbacks.EarlyStopping(monitor='loss',
-                                              patience=3,
-                                              min_delta=1e-5,
-                                              verbose=2)
+es_callback = tf.keras.callbacks.EarlyStopping(monitor='val_loss',
+                                               patience=5,
+                                               min_delta=1e-4,
+                                               verbose=2,
+                                               restore_best_weights=True)
 
 all_residual_sums = []
 
@@ -203,6 +204,7 @@ model.fit(x=train_gaussians_reshaped,
           epochs=8,
           validation_data=(val_gaussians_reshaped, val_binary_reshaped),
           callbacks=[cp_callback, es_callback, lab6_callback])
+          
 
 print(f'all_residual_sums: {all_residual_sums}')
 

@@ -13,6 +13,12 @@ filename_str = sys.argv[1]
 num_weights = sys.argv[2]
 
 def return_data(filename):
+    '''
+    Add experimental files to the file map if you are looking to make predictions on the patterns in those files.
+    If you have multiple files for one sample and want to average them, put them all in the list in the file map (see example: CeO2_std_avg).
+    Put all files in the correct directory. Comment out this path and file_map if necessary and replace with correct directory.
+    '''
+
     path = '/home/shasko/Downloads/patterns_for_sonia'
 
     file_map = {
@@ -56,7 +62,7 @@ def return_data(filename):
     
     files = [os.path.join(path, f) for f in file_map[filename]]
     
-    if filename == 'LaB6_argonne':  # Load in csvs
+    if filename == 'LaB6_argonne':  # Load in csvs (if there are other csv files, add their filemap names to this if statement)
         df = pd.read_csv(files[0])
         intens = [df['y'].values]
         tth = [df['x_rescaled'].values]
@@ -67,24 +73,22 @@ def return_data(filename):
 
     return intens, tth
 
+# Get the intensities and tth values, find the means (in case there are multiple files in the filemap list for that sample), and turn into arrays
 intens, tth = return_data(filename_str)
-
 tth_exp_unpadded = np.mean(tth, axis=0)
 inten_exp_unpadded = np.mean(intens, axis=0)
-
 tth_exp_unpadded = np.array(tth_exp_unpadded)
 inten_exp_unpadded = np.array(inten_exp_unpadded)
 
+# Make arrays of the correct size for feeding into the RNN
 inten_exp = np.zeros((11837, ))
 tth_exp = np.zeros((11837, ))
-# tth_exp = np.linspace(1,10,11837)
 
 tth_exp[:tth_exp_unpadded.shape[0]] = tth_exp_unpadded # fill the final x array with all the actual tth values
 step = tth_exp_unpadded[1] - tth_exp_unpadded[0] # now figure out the step size for the tth values
 tth_exp[tth_exp_unpadded.shape[0]:] = tth_exp_unpadded[-1] + step * np.arange(1, 11837 - tth_exp_unpadded.shape[0] + 1) # fill the rest of the final x array with fake x values using same step size; this removes all the zeros
 
-print(inten_exp_unpadded.shape)
-
+# Populate the intensity array with the true experimental values
 for i in range(inten_exp_unpadded.shape[0]):
     inten_exp[i] = inten_exp_unpadded[i]
 inten_exp = inten_exp.reshape(1, inten_exp.shape[0])
@@ -99,11 +103,10 @@ for j in range(inten_exp.shape[0]):
     min_inten = np.min(inten_exp[j])
     inten_exp_sc[j] = (inten_exp[j] - min_inten) / (max_inten - min_inten)
 
+# Reshape the data
 inten_exp_reshaped = inten_exp_sc.reshape(inten_exp_sc.shape[0], inten_exp_sc.shape[1], 1)
 
-# binary_new = np.array(binary_new)
-# binary_new_reshaped = binary_new.reshape(binary_new.shape[0], binary_new.shape[1], 1)
-
+# Rebuild the model in the same way it was built in the training file (testing_diffraction.py)
 n_batch, n_timesteps, n_input_dim = 64, window_size, 1
 
 def build_model():

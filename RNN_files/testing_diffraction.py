@@ -136,6 +136,7 @@ def eval_LaB6():
 
 LaB6_tth_exp, LaB6_inten_exp_reshaped = eval_LaB6()
 
+# These were annotated by hand and are not very accurate
 peak_x_values = [
     [1.353, 1.357], [1.545, 1.550], [1.693, 1.685], [1.818, 1.823],
     [1.9285, 1.933], [2.0275, 2.0340], [2.204, 2.209], [2.285, 2.289],
